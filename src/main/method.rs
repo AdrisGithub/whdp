@@ -25,9 +25,7 @@ impl FromStr for HttpMethod {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         NAMES.iter()
             .position(|&idx| idx.eq_ignore_ascii_case(s))
-            .into_iter()
             .map(|x| HttpMethod::try_from(x).unwrap())
-            .next()
             .ok_or(HttpParseError::new())
     }
 }

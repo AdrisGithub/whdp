@@ -7,5 +7,10 @@ description = "Wizards hypermedia document parser"
 readme = "README.md"
 repository = "https://github.com/AdrisGithub/whdp"
 license = "GPL-2.0-or-later"
+exclude = ["src/resources"]
+
+
+[lib]
+path = "src/main/lib.rs"
 
 [dependencies]

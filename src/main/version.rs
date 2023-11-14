@@ -45,12 +45,18 @@ impl TryFrom<usize> for HttpVersion {
 impl TryFrom<f64> for HttpVersion {
     type Error = HttpParseError;
     fn try_from(value: f64) -> Result<Self, Self::Error> {
-        match value {
-            1.0 => Ok(HttpVersion::One),
-            1.1 => Ok(HttpVersion::OnePointOne),
-            2.0 => Ok(HttpVersion::Two),
-            3.0 => Ok(HttpVersion::Three),
-            _ => Err(HttpParseError::new())
+        // pattern matching doesn't work with floating point numbers
+        // https://github.com/rust-lang/rust/issues/41255
+        if value == 1.0 {
+            Ok(HttpVersion::One)
+        }else if value == 1.1 {
+            Ok(HttpVersion::OnePointOne)
+        }else if value == 2.0 {
+            Ok(HttpVersion::Two)
+        }else if value == 3.0 {
+            Ok(HttpVersion::Three)
+        }else{
+            Err(HttpParseError::new())
         }
     }
 }

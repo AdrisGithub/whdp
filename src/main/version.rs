@@ -1,3 +1,4 @@
+use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
@@ -59,5 +60,15 @@ impl TryFrom<f64> for HttpVersion {
         } else {
             Err(HttpParseError::new())
         }
+    }
+}
+impl Debug for HttpVersion{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", NAMES[*self as usize])
+    }
+}
+impl Display for HttpVersion{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", NAMES[*self as usize])
     }
 }

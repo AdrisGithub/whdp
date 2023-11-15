@@ -17,7 +17,7 @@ mod tests {
         let mut file = File::open("src/resources/request.txt").unwrap();
         let mut string = String::new();
         let _ = file.read_to_string(&mut string);
-        let req = Request::try_from(string.as_str()).unwrap();
+        let req = Request::try_from(string.as_bytes()).unwrap();
         println!("{}", req.get_body());
         println!("{}", req.get_method());
         println!("{}", req);

@@ -52,9 +52,7 @@ impl Request {
     }
     fn parse_body(lines: &mut Lines) -> String {
         let mut string = String::new();
-        for line in lines {
-            string.push_str(line)
-        };
+        lines.for_each(|str| string.push_str(str));
         string
     }
     fn parse_meta_data_line(str: Option<&str>) -> Result<(HttpMethod, String, HttpVersion), HttpParseError> {

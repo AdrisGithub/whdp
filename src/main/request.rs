@@ -5,22 +5,26 @@ use crate::error::HttpParseError;
 use crate::method::HttpMethod;
 use crate::version::HttpVersion;
 
-pub struct Request {
+pub struct Request<'a> {
     method: HttpMethod,
-    uri: String,
+    uri: &'a str,
     version: HttpVersion,
-    headers: HashMap<String, String>,
-    body: String,
+    headers: HashMap<&'a str, &'a str>,
+    body: &'a str,
+}
+impl<'b,'a: 'b> TryFrom<&'a str> for Request<'b>{
+    type Error = HttpParseError;
+    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
+        Self::from_string(value)
+    }
 }
 
-impl FromStr for Request {
-    type Err = HttpParseError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut lines = s.lines();
+impl<'a> Request<'a> {
+    fn from_string<'b>(str: &'b str) -> Result<Request<'a>, HttpParseError> where 'b: 'a{
+        let mut lines = str.lines();
         let (method, uri, version) = Self::parse_meta_data_line(lines.next())?;
         let headers = Self::parse_header(lines.next())?;
-        let body = lines.next().ok_or(HttpParseError::new())?.to_string();
+        let body = lines.next().ok_or(HttpParseError::new())?;
         Ok(
             Self {
                 method,
@@ -31,22 +35,18 @@ impl FromStr for Request {
             }
         )
     }
-}
-
-impl Request {
     fn parse_method(str: Option<&str>) -> Result<HttpMethod, HttpParseError> {
         str.ok_or(HttpParseError::new())
             .map(HttpMethod::from_str)?
     }
-    fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
+    fn parse_uri(str: Option<&str>) -> Result<&str, HttpParseError> {
         str.ok_or(HttpParseError::new())
-            .map(String::from)
     }
     fn parse_version(str: Option<&str>) -> Result<HttpVersion, HttpParseError> {
         str.ok_or(HttpParseError::new())
             .map(HttpVersion::from_str)?
     }
-    fn parse_meta_data_line(str: Option<&str>) -> Result<(HttpMethod, String, HttpVersion), HttpParseError> {
+    fn parse_meta_data_line(str: Option<&str>) -> Result<(HttpMethod, &str, HttpVersion), HttpParseError> {
         let mut split = str.ok_or(HttpParseError::new())?.split(' ');
         Ok((
             Self::parse_method(split.next())?,
@@ -54,14 +54,14 @@ impl Request {
             Self::parse_version(split.next())?
         ))
     }
-    fn parse_header(str: Option<&str>) -> Result<HashMap<String, String>, HttpParseError> {
-        let mut map: HashMap<String, String> = HashMap::new();
+    fn parse_header(str: Option<&str>) -> Result<HashMap<&str, &str>, HttpParseError> {
+        let mut map: HashMap<&str, &str> = HashMap::new();
         let str = str.ok_or(HttpParseError::new())?
             .lines()
             .map(Self::parse_key_value);
         for entry in str {
             let (key, value) = entry?;
-            map.insert(String::from(key), String::from(value));
+            map.insert(key, value);
         }
         Ok(map)
     }

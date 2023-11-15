@@ -73,8 +73,8 @@ impl Request {
             if !line.is_empty() {
                 let (key, val) = Self::parse_key_value(line)?;
                 map.insert(key, val);
-            }
-            opt_line = lines.next();
+                opt_line = lines.next();
+            } else { opt_line = None }
         }
         Ok(map)
     }

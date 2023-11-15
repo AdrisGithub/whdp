@@ -49,13 +49,13 @@ impl TryFrom<f64> for HttpVersion {
         // https://github.com/rust-lang/rust/issues/41255
         if value == 1.0 {
             Ok(HttpVersion::One)
-        }else if value == 1.1 {
+        } else if value == 1.1 {
             Ok(HttpVersion::OnePointOne)
-        }else if value == 2.0 {
+        } else if value == 2.0 {
             Ok(HttpVersion::Two)
-        }else if value == 3.0 {
+        } else if value == 3.0 {
             Ok(HttpVersion::Three)
-        }else{
+        } else {
             Err(HttpParseError::new())
         }
     }

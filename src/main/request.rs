@@ -12,7 +12,8 @@ pub struct Request<'a> {
     headers: HashMap<&'a str, &'a str>,
     body: &'a str,
 }
-impl<'b,'a: 'b> TryFrom<&'a str> for Request<'b>{
+
+impl<'b, 'a: 'b> TryFrom<&'a str> for Request<'b> {
     type Error = HttpParseError;
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         Self::from_string(value)
@@ -20,7 +21,7 @@ impl<'b,'a: 'b> TryFrom<&'a str> for Request<'b>{
 }
 
 impl<'a> Request<'a> {
-    fn from_string<'b>(str: &'b str) -> Result<Request<'a>, HttpParseError> where 'b: 'a{
+    fn from_string<'b>(str: &'b str) -> Result<Request<'a>, HttpParseError> where 'b: 'a {
         let mut lines = str.lines();
         let (method, uri, version) = Self::parse_meta_data_line(lines.next())?;
         let headers = Self::parse_header(lines.next())?;

@@ -4,6 +4,7 @@ use crate::error::HttpParseError;
 
 const NAMES: [&str; 4] = ["HTTP/1.0", "HTTP/1.1", "HTTP/2", "HTTP/3"];
 
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
 pub enum HttpVersion {
     One,
     OnePointOne,

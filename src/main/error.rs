@@ -1,7 +1,9 @@
 use std::fmt::{Debug, Formatter};
 
-const MESSAGE: &str = "Failure at parsing"; // TODO better error messages
+const MESSAGE: &str = "Failure at parsing";
 
+// TODO better error messages
+#[derive(Eq, PartialEq, Ord, PartialOrd, Copy, Clone, Hash)]
 pub struct HttpParseError(());
 
 impl HttpParseError {

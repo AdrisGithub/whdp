@@ -5,7 +5,7 @@ use crate::error::HttpParseError;
 use crate::method::HttpMethod;
 use crate::version::HttpVersion;
 
-#[derive(Copy, Clone, Eq, Hash, Debug)]
+#[derive(Clone, Eq, Debug, PartialEq)]
 pub struct Request<'a> {
     method: HttpMethod,
     uri: &'a str,

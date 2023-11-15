@@ -3,6 +3,7 @@ pub mod error;
 pub mod version;
 pub mod request;
 pub mod response;
+pub mod status;
 
 #[cfg(test)]
 mod tests {

@@ -8,6 +8,7 @@ use crate::version::HttpVersion;
 
 const KEY_VALUE_DELIMITER: &str = ": ";
 const NEW_LINE: char = '\n';
+
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Request {
     method: HttpMethod,
@@ -20,13 +21,14 @@ pub struct Request {
 impl<'a> TryFrom<&'a str> for Request {
     type Error = HttpParseError;
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        Self::from_string(value)
+        Self::from_str(value)
     }
 }
 
-impl Request {
-    fn from_string(str: &str) -> Result<Request, HttpParseError> {
-        let mut lines = str.lines();
+impl FromStr for Request {
+    type Err = HttpParseError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut lines = s.lines();
         let (method, uri, version) = Self::parse_meta_data_line(lines.next())?;
         let headers = Self::parse_header(&mut lines)?;
         let body = Self::parse_body(&mut lines);
@@ -40,6 +42,25 @@ impl Request {
             }
         )
     }
+}
+
+impl TryFrom<String> for Request {
+    type Error = HttpParseError;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::from_str(value.as_str())
+    }
+}
+
+impl TryFrom<&[u8]> for Request {
+    type Error = HttpParseError;
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        let string = String::from_utf8(Vec::from(value))
+            .map_err(|_a| HttpParseError::new())?;
+        Self::try_from(string)
+    }
+}
+
+impl Request {
     fn parse_method(str: Option<&str>) -> Result<HttpMethod, HttpParseError> {
         str.ok_or(HttpParseError::new())
             .map(HttpMethod::from_str)?

@@ -1,3 +1,4 @@
+use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
@@ -46,5 +47,17 @@ impl TryFrom<usize> for HttpMethod {
             9 => Ok(HttpMethod::Trace),
             _ => Err(HttpParseError::new())
         }
+    }
+}
+
+impl Debug for HttpMethod {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", NAMES[*self as usize])
+    }
+}
+
+impl Display for HttpMethod {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", NAMES[*self as usize])
     }
 }

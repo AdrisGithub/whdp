@@ -83,7 +83,7 @@ impl<'a> Request<'a> {
         &self.headers
     }
     pub fn get_body(&self) -> &str {
-        &self.body
+        self.body
     }
     pub fn get_version(&self) -> &HttpVersion {
         &self.version

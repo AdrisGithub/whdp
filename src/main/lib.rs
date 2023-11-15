@@ -2,12 +2,12 @@ pub mod method;
 pub mod error;
 pub mod version;
 pub mod request;
+pub mod response;
 
 #[cfg(test)]
 mod tests {
     use std::fs::File;
     use std::io::Read;
-    use crate::request;
 
     use crate::request::Request;
 

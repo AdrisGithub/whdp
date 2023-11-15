@@ -6,6 +6,8 @@ use crate::error::HttpParseError;
 use crate::method::HttpMethod;
 use crate::version::HttpVersion;
 
+const KEY_VALUE_DELIMITER: &str = ": ";
+const NEW_LINE: char = '\n';
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Request {
     method: HttpMethod,
@@ -77,7 +79,7 @@ impl Request {
         Ok(map)
     }
     fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
-        let mut key_value = str.split(':');
+        let mut key_value = str.split(KEY_VALUE_DELIMITER);
         let key = key_value.next()
             .ok_or(HttpParseError::new())
             .map(String::from)?;
@@ -90,9 +92,9 @@ impl Request {
         let mut string = String::new();
         for (key, value) in &self.headers {
             string.push_str(key);
-            string.push(':');
+            string.push_str(KEY_VALUE_DELIMITER);
             string.push_str(value);
-            string.push('\n');
+            string.push(NEW_LINE);
         }
         string
     }

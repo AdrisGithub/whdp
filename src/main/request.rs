@@ -1,33 +1,33 @@
 use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
-use std::str::FromStr;
+use std::str::{FromStr, Lines};
 
 use crate::error::HttpParseError;
 use crate::method::HttpMethod;
 use crate::version::HttpVersion;
 
 #[derive(Clone, Eq, PartialEq, Hash)]
-pub struct Request<'a> {
+pub struct Request {
     method: HttpMethod,
-    uri: &'a str,
+    uri: String,
     version: HttpVersion,
-    headers: BTreeMap<&'a str, &'a str>,
-    body: &'a str,
+    headers: BTreeMap<String, String>,
+    body: String,
 }
 
-impl<'b, 'a: 'b> TryFrom<&'a str> for Request<'b> {
+impl<'a> TryFrom<&'a str> for Request {
     type Error = HttpParseError;
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         Self::from_string(value)
     }
 }
 
-impl<'a> Request<'a> {
-    fn from_string<'b>(str: &'b str) -> Result<Request<'a>, HttpParseError> where 'b: 'a {
+impl Request {
+    fn from_string(str: &str) -> Result<Request, HttpParseError> {
         let mut lines = str.lines();
         let (method, uri, version) = Self::parse_meta_data_line(lines.next())?;
-        let headers = Self::parse_header(lines.next())?;
-        let body = lines.next().ok_or(HttpParseError::new())?;
+        let headers = Self::parse_header(&mut lines)?;
+        let body = Self::parse_body(lines);
         Ok(
             Self {
                 method,
@@ -42,14 +42,22 @@ impl<'a> Request<'a> {
         str.ok_or(HttpParseError::new())
             .map(HttpMethod::from_str)?
     }
-    fn parse_uri(str: Option<&str>) -> Result<&str, HttpParseError> {
+    fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
         str.ok_or(HttpParseError::new())
+            .map(String::from)
     }
     fn parse_version(str: Option<&str>) -> Result<HttpVersion, HttpParseError> {
         str.ok_or(HttpParseError::new())
             .map(HttpVersion::from_str)?
     }
-    fn parse_meta_data_line(str: Option<&str>) -> Result<(HttpMethod, &str, HttpVersion), HttpParseError> {
+    fn parse_body(lines: Lines) -> String {
+        let mut string = String::new();
+        for line in lines {
+            string.push_str(line)
+        };
+        string
+    }
+    fn parse_meta_data_line(str: Option<&str>) -> Result<(HttpMethod, String, HttpVersion), HttpParseError> {
         let mut split = str.ok_or(HttpParseError::new())?.split(' ');
         Ok((
             Self::parse_method(split.next())?,
@@ -57,21 +65,27 @@ impl<'a> Request<'a> {
             Self::parse_version(split.next())?
         ))
     }
-    fn parse_header(str: Option<&str>) -> Result<BTreeMap<&str, &str>, HttpParseError> {
-        let mut map: BTreeMap<&str, &str> = BTreeMap::new();
-        let str = str.ok_or(HttpParseError::new())?
-            .lines()
-            .map(Self::parse_key_value);
-        for entry in str {
-            let (key, value) = entry?;
-            map.insert(key, value);
+    fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpParseError> {
+        let mut map: BTreeMap<String, String> = BTreeMap::new();
+        let mut opt_line = lines.next();
+        while opt_line.is_some() {
+            let line = opt_line.ok_or(HttpParseError::new())?;
+            if !line.is_empty() {
+                let (key, val) = Self::parse_key_value(line)?;
+                map.insert(key, val);
+            }
+            opt_line = lines.next();
         }
         Ok(map)
     }
-    fn parse_key_value(str: &str) -> Result<(&str, &str), HttpParseError> {
+    fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
         let mut key_value = str.split(':');
-        let key = key_value.next().ok_or(HttpParseError::new())?;
-        let value = key_value.next().ok_or(HttpParseError::new())?;
+        let key = key_value.next()
+            .ok_or(HttpParseError::new())
+            .map(String::from)?;
+        let value = key_value.next()
+            .ok_or(HttpParseError::new())
+            .map(String::from)?;
         Ok((key, value))
     }
     fn headers_to_string(&self) -> String {
@@ -87,27 +101,27 @@ impl<'a> Request<'a> {
     pub fn get_method(&self) -> &HttpMethod {
         &self.method
     }
-    pub fn get_uri(&self) -> &&str {
+    pub fn get_uri(&self) -> &String {
         &self.uri
     }
-    pub fn get_headers(&self) -> &BTreeMap<&str, &str> {
+    pub fn get_headers(&self) -> &BTreeMap<String, String> {
         &self.headers
     }
-    pub fn get_body(&self) -> &str {
-        self.body
+    pub fn get_body(&self) -> &String {
+        &self.body
     }
     pub fn get_version(&self) -> &HttpVersion {
         &self.version
     }
 }
 
-impl Debug for Request<'_> {
+impl Debug for Request {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} {} {} \n{}\n\n{}", self.method, self.uri, self.version, self.headers_to_string(), self.body)
     }
 }
 
-impl Display for Request<'_> {
+impl Display for Request {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(self, f)
     }

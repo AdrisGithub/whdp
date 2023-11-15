@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
@@ -73,6 +74,16 @@ impl<'a> Request<'a> {
         let value = key_value.next().ok_or(HttpParseError::new())?;
         Ok((key, value))
     }
+    fn headers_to_string(&self) -> String {
+        let mut string = String::new();
+        for (key, value) in &self.headers {
+            string.push_str(key);
+            string.push(':');
+            string.push_str(value);
+            string.push('\n');
+        }
+        string
+    }
     pub fn get_method(&self) -> &HttpMethod {
         &self.method
     }
@@ -87,5 +98,17 @@ impl<'a> Request<'a> {
     }
     pub fn get_version(&self) -> &HttpVersion {
         &self.version
+    }
+}
+
+impl Debug for Request<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {} {} \n{}\n\n{}", self.method, self.uri, self.version, self.headers_to_string(), self.body)
+    }
+}
+
+impl Display for Request<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(self, f)
     }
 }

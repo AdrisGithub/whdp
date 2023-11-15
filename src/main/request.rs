@@ -27,7 +27,7 @@ impl Request {
         let mut lines = str.lines();
         let (method, uri, version) = Self::parse_meta_data_line(lines.next())?;
         let headers = Self::parse_header(&mut lines)?;
-        let body = Self::parse_body(lines);
+        let body = Self::parse_body(&mut lines);
         Ok(
             Self {
                 method,
@@ -50,7 +50,7 @@ impl Request {
         str.ok_or(HttpParseError::new())
             .map(HttpVersion::from_str)?
     }
-    fn parse_body(lines: Lines) -> String {
+    fn parse_body(lines: &mut Lines) -> String {
         let mut string = String::new();
         for line in lines {
             string.push_str(line)

@@ -4,7 +4,7 @@ use crate::error::HttpParseError;
 
 const NAMES: [&str; 10] = ["POST", "GET", "PUT", "UPDATE", "DELETE", "PATCH", "HEAD", "CONNECT", "OPTIONS", "TRACE"];
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum HttpMethod {
     Post,
     Get,

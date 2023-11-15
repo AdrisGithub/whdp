@@ -5,7 +5,7 @@ use crate::error::HttpParseError;
 use crate::method::HttpMethod;
 use crate::version::HttpVersion;
 
-#[derive(Clone, Eq, Debug, PartialEq, Hash)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Request<'a> {
     method: HttpMethod,
     uri: &'a str,
@@ -72,5 +72,20 @@ impl<'a> Request<'a> {
         let key = key_value.next().ok_or(HttpParseError::new())?;
         let value = key_value.next().ok_or(HttpParseError::new())?;
         Ok((key, value))
+    }
+    pub fn get_method(&self) -> &HttpMethod {
+        &self.method
+    }
+    pub fn get_uri(&self) -> &&str {
+        &self.uri
+    }
+    pub fn get_headers(&self) -> &BTreeMap<&str, &str> {
+        &self.headers
+    }
+    pub fn get_body(&self) -> &str {
+        &self.body
+    }
+    pub fn get_version(&self) -> &HttpVersion {
+        &self.version
     }
 }

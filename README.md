@@ -6,7 +6,7 @@ into workable types and vice versa.
 
 ## Explanation:
 
-Http is a text-based protocol. They follow a rather simple format
+Http is a text-based protocol. It follows a rather simple format
 
 Requests:
 ```text

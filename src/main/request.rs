@@ -1,16 +1,16 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
 use crate::method::HttpMethod;
 use crate::version::HttpVersion;
 
-#[derive(Clone, Eq, Debug, PartialEq)]
+#[derive(Clone, Eq, Debug, PartialEq, Hash)]
 pub struct Request<'a> {
     method: HttpMethod,
     uri: &'a str,
     version: HttpVersion,
-    headers: HashMap<&'a str, &'a str>,
+    headers: BTreeMap<&'a str, &'a str>,
     body: &'a str,
 }
 
@@ -56,8 +56,8 @@ impl<'a> Request<'a> {
             Self::parse_version(split.next())?
         ))
     }
-    fn parse_header(str: Option<&str>) -> Result<HashMap<&str, &str>, HttpParseError> {
-        let mut map: HashMap<&str, &str> = HashMap::new();
+    fn parse_header(str: Option<&str>) -> Result<BTreeMap<&str, &str>, HttpParseError> {
+        let mut map: BTreeMap<&str, &str> = BTreeMap::new();
         let str = str.ok_or(HttpParseError::new())?
             .lines()
             .map(Self::parse_key_value);

@@ -1,5 +1,7 @@
 use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
+use std::io::{BufRead, BufReader, Read};
+use std::net::TcpStream;
 use std::str::{FromStr, Lines};
 
 use crate::error::HttpParseError;
@@ -8,6 +10,7 @@ use crate::version::HttpVersion;
 
 const KEY_VALUE_DELIMITER: &str = ": ";
 const NEW_LINE: char = '\n';
+const BUFFER_SIZE: usize = 6_000_000;
 
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Request {
@@ -54,13 +57,51 @@ impl TryFrom<String> for Request {
 impl TryFrom<&[u8]> for Request {
     type Error = HttpParseError;
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
-        let string = String::from_utf8(Vec::from(value))
+        Self::try_from(Vec::from(value))
+    }
+}
+
+impl TryFrom<Vec<u8>> for Request {
+    type Error = HttpParseError;
+    fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
+        let string = String::from_utf8(value)
             .map_err(|_a| HttpParseError::new())?;
         Self::try_from(string)
     }
 }
 
+impl TryFrom<&mut TcpStream> for Request {
+    type Error = HttpParseError;
+
+
+    fn try_from(value: &mut TcpStream) -> Result<Self, Self::Error> {
+        let mut buf = vec![];
+        loop {
+            match value.read_to_end(&mut buf) {
+                Ok(_) => break,
+                Err(e) => println!("encountered IO error: {}", e),
+            };
+        };
+        println!("bytes: {:?}", String::from_utf8(buf));
+        Err(HttpParseError::new())
+    }
+}
+
 impl Request {
+    fn find_size(stream: &mut TcpStream) -> Result<usize, HttpParseError> {
+        let reader = BufReader::new(stream);
+        let line = reader.lines()
+            .map(|line| line.unwrap())
+            .take_while(|line| !line.is_empty())
+            .find(|line| line.contains("Content-Length:"))
+            .ok_or(HttpParseError::new())?;
+        let mut split = line.split(": ");
+        let _ = split.next();
+        split.next()
+            .ok_or(HttpParseError::new())?
+            .parse::<usize>()
+            .map_err(|err| HttpParseError::new())
+    }
     fn parse_method(str: Option<&str>) -> Result<HttpMethod, HttpParseError> {
         str.ok_or(HttpParseError::new())
             .map(HttpMethod::from_str)?
@@ -145,5 +186,15 @@ impl Debug for Request {
 impl Display for Request {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(self, f)
+    }
+}
+
+pub trait TryRequest {
+    fn try_to_request(&mut self) -> Result<Request, HttpParseError>;
+}
+
+impl TryRequest for TcpStream {
+    fn try_to_request(&mut self) -> Result<Request, HttpParseError> {
+        Request::try_from(self)
     }
 }

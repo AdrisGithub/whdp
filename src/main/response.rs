@@ -1,5 +1,5 @@
 use std::collections::BTreeMap;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
@@ -56,6 +56,11 @@ impl Display for Response {
         )
     }
 }
+impl Debug for Response {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(self, f)
+    }
+}
 
 impl TryFrom<String> for Response {
     type Error = HttpParseError;
@@ -76,5 +81,18 @@ impl FromStr for Response {
             headers,
             body,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::response::Response;
+    use std::fs::read_to_string;
+
+    #[test]
+    fn test() {
+        let string = read_to_string("src/resources/response.txt").unwrap();
+        let resp = Response::try_from(string).unwrap();
+        println!("{:?}", resp);
     }
 }

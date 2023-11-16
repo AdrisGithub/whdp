@@ -60,7 +60,13 @@ impl Display for Response {
 impl TryFrom<String> for Response {
     type Error = HttpParseError;
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        let mut value = value.lines();
+        Self::from_str(value.as_str())
+    }
+}
+impl FromStr for Response {
+    type Err = HttpParseError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut value = s.lines();
         let (version, status) = Self::parse_meta_line(value.next())?;
         let headers = parse_header(&mut value)?;
         let body = parse_body(&mut value);

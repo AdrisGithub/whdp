@@ -2,12 +2,11 @@ use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::io::{BufRead, BufReader};
 use std::net::TcpStream;
-use std::str::{FromStr, Lines};
+use std::str::FromStr;
 
 use crate::error::HttpParseError;
 use crate::method::HttpMethod;
-use crate::util::ParseKeyValue;
-use crate::util::KEY_VALUE_DELIMITER;
+use crate::util::{parse_body, parse_header, ParseKeyValue, EMPTY_CHAR};
 use crate::version::HttpVersion;
 
 #[derive(Clone, Eq, PartialEq, Hash)]
@@ -31,8 +30,8 @@ impl FromStr for Request {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut lines = s.lines();
         let (method, uri, version) = Self::parse_meta_data_line(lines.next())?;
-        let headers = Self::parse_header(&mut lines)?;
-        let body = Self::parse_body(&mut lines);
+        let headers = parse_header(&mut lines)?;
+        let body = parse_body(&mut lines);
         Ok(Self {
             method,
             uri,
@@ -89,48 +88,15 @@ impl Request {
         str.ok_or(HttpParseError::new())
             .map(HttpVersion::from_str)?
     }
-    fn parse_body(lines: &mut Lines) -> String {
-        let mut string = String::new();
-        lines.for_each(|str| string.push_str(str));
-        string
-    }
     fn parse_meta_data_line(
         str: Option<&str>,
     ) -> Result<(HttpMethod, String, HttpVersion), HttpParseError> {
-        let mut split = str.ok_or(HttpParseError::new())?.split(' ');
+        let mut split = str.ok_or(HttpParseError::new())?.split(EMPTY_CHAR);
         Ok((
             Self::parse_method(split.next())?,
             Self::parse_uri(split.next())?,
             Self::parse_version(split.next())?,
         ))
-    }
-    fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpParseError> {
-        let mut map: BTreeMap<String, String> = BTreeMap::new();
-        let mut opt_line = lines.next();
-        while opt_line.is_some() {
-            let line = opt_line.ok_or(HttpParseError::new())?;
-            if !line.is_empty() {
-                let (key, val) = Self::parse_key_value(line)?;
-                map.insert(key, val);
-                opt_line = lines.next();
-            } else {
-                opt_line = None
-            }
-        }
-        Ok(map)
-    }
-
-    fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
-        let mut key_value = str.split(KEY_VALUE_DELIMITER);
-        let key = key_value
-            .next()
-            .ok_or(HttpParseError::new())
-            .map(String::from)?;
-        let value = key_value
-            .next()
-            .ok_or(HttpParseError::new())
-            .map(String::from)?;
-        Ok((key, value))
     }
     pub fn get_method(&self) -> &HttpMethod {
         &self.method

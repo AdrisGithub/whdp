@@ -160,7 +160,7 @@ impl Request {
 
 impl Debug for Request {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {} {} \n{}\n\n{}", self.method, self.uri, self.version, self.headers_to_string(), self.body)
+        write!(f, "{} {} {} \n{}\n{}", self.method, self.uri, self.version, self.headers_to_string(), self.body)
     }
 }
 

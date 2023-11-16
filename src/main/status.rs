@@ -1,6 +1,8 @@
 use std::fmt::{Debug, Display, Formatter};
+use std::str::FromStr;
 
 use crate::error::HttpParseError;
+use crate::util::EMPTY_CHAR;
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash)]
 pub struct HttpStatus {
@@ -75,6 +77,22 @@ impl TryFrom<(usize, String)> for HttpStatus {
     fn try_from(value: (usize, String)) -> Result<Self, Self::Error> {
         let size = u16::try_from(value.0).map_err(|_err| HttpParseError::new())?;
         Ok(Self::from((size, value.1)))
+    }
+}
+impl FromStr for HttpStatus {
+    type Err = HttpParseError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut split = s.split(EMPTY_CHAR);
+        let first = split.next().ok_or(HttpParseError::new())?;
+        let second = split.next().ok_or(HttpParseError::new())?;
+        Self::try_from((first, second))
+    }
+}
+impl TryFrom<(&str, &str)> for HttpStatus {
+    type Error = HttpParseError;
+    fn try_from(value: (&str, &str)) -> Result<Self, Self::Error> {
+        let code = u16::from_str(value.0).map_err(|_err| HttpParseError::new())?;
+        Ok(Self::from((code, value.1)))
     }
 }
 

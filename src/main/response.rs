@@ -1,10 +1,10 @@
-use std::collections::BTreeMap;
 use crate::status::HttpStatus;
 use crate::version::HttpVersion;
+use std::collections::BTreeMap;
 
-pub struct Response{
+pub struct Response {
     version: HttpVersion,
     status: HttpStatus,
-    headers: BTreeMap<String,String>,
-    body: String
+    headers: BTreeMap<String, String>,
+    body: String,
 }

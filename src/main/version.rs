@@ -71,6 +71,6 @@ impl Debug for HttpVersion {
 
 impl Display for HttpVersion {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(f, self)
+        Debug::fmt(self, f)
     }
 }

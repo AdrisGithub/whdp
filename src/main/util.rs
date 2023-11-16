@@ -26,7 +26,10 @@ impl ParseKeyValue for BTreeMap<String, String> {
 }
 pub fn parse_body(lines: &mut Lines) -> String {
     let mut string = String::new();
-    lines.for_each(|str| string.push_str(str));
+    lines.for_each(|str| {
+        string.push_str(str);
+        string.push(NEW_LINE);
+    });
     string
 }
 pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpParseError> {

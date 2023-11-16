@@ -54,8 +54,12 @@ impl Response {
     pub fn get_headers_mut(&mut self) -> &mut BTreeMap<String, String> {
         &mut self.headers
     }
-    pub fn append_body(&mut self, str: &str) -> &mut Response {
+    pub fn append_body_str(&mut self, str: &str) -> &mut Response {
         self.body.push_str(str);
+        self
+    }
+    pub fn append_body(&mut self, str: String) -> &mut Response {
+        self.append_body_str(str.as_str());
         self
     }
     fn parse_meta_line(str: Option<&str>) -> Result<(HttpVersion, HttpStatus), HttpParseError> {

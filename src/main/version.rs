@@ -17,7 +17,8 @@ impl FromStr for HttpVersion {
     type Err = HttpParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        NAMES.iter()
+        NAMES
+            .iter()
             .position(|&idx| idx.eq_ignore_ascii_case(s))
             .map(HttpVersion::try_from)
             .ok_or(HttpParseError::from(ParseErrorKind::Version))?

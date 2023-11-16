@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
-use crate::error::HttpParseError;
+use crate::error::{HttpParseError, ParseErrorKind};
 
 const NAMES: [&str; 10] = ["POST", "GET", "PUT", "UPDATE", "DELETE", "PATCH", "HEAD", "CONNECT", "OPTIONS", "TRACE"];
 
@@ -25,8 +25,8 @@ impl FromStr for HttpMethod {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         NAMES.iter()
             .position(|&idx| idx.eq_ignore_ascii_case(s))
-            .map(|x| HttpMethod::try_from(x).unwrap())
-            .ok_or(HttpParseError::new())
+            .map(HttpMethod::try_from)
+            .ok_or(HttpParseError::from(ParseErrorKind::Method))?
     }
 }
 
@@ -45,7 +45,7 @@ impl TryFrom<usize> for HttpMethod {
             7 => Ok(HttpMethod::Connect),
             8 => Ok(HttpMethod::Options),
             9 => Ok(HttpMethod::Trace),
-            _ => Err(HttpParseError::new())
+            _ => Err(HttpParseError::from(ParseErrorKind::Method))
         }
     }
 }
@@ -58,6 +58,6 @@ impl Debug for HttpMethod {
 
 impl Display for HttpMethod {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", NAMES[*self as usize])
+        Debug::fmt(self, f)
     }
 }

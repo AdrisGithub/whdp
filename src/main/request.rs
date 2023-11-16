@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
-use std::io::{BufRead, BufReader, Read};
+use std::io::{BufRead, BufReader};
 use std::net::TcpStream;
 use std::str::{FromStr, Lines};
 
@@ -10,7 +10,6 @@ use crate::version::HttpVersion;
 
 const KEY_VALUE_DELIMITER: &str = ": ";
 const NEW_LINE: char = '\n';
-const BUFFER_SIZE: usize = 6_000_000;
 
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Request {
@@ -75,33 +74,15 @@ impl TryFrom<&mut TcpStream> for Request {
 
 
     fn try_from(value: &mut TcpStream) -> Result<Self, Self::Error> {
-        let mut buf = vec![];
-        loop {
-            match value.read_to_end(&mut buf) {
-                Ok(_) => break,
-                Err(e) => println!("encountered IO error: {}", e),
-            };
-        };
-        println!("bytes: {:?}", String::from_utf8(buf));
-        Err(HttpParseError::new())
+        let mut reader = BufReader::new(value);
+        let received: Vec<u8> = reader.fill_buf()?
+            .to_vec();
+        reader.consume(received.len());
+        Self::try_from(received)
     }
 }
 
 impl Request {
-    fn find_size(stream: &mut TcpStream) -> Result<usize, HttpParseError> {
-        let reader = BufReader::new(stream);
-        let line = reader.lines()
-            .map(|line| line.unwrap())
-            .take_while(|line| !line.is_empty())
-            .find(|line| line.contains("Content-Length:"))
-            .ok_or(HttpParseError::new())?;
-        let mut split = line.split(": ");
-        let _ = split.next();
-        split.next()
-            .ok_or(HttpParseError::new())?
-            .parse::<usize>()
-            .map_err(|err| HttpParseError::new())
-    }
     fn parse_method(str: Option<&str>) -> Result<HttpMethod, HttpParseError> {
         str.ok_or(HttpParseError::new())
             .map(HttpMethod::from_str)?

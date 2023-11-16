@@ -3,7 +3,9 @@ use std::str::FromStr;
 
 use crate::error::{HttpParseError, ParseErrorKind};
 
-const NAMES: [&str; 10] = ["POST", "GET", "PUT", "UPDATE", "DELETE", "PATCH", "HEAD", "CONNECT", "OPTIONS", "TRACE"];
+const NAMES: [&str; 10] = [
+    "POST", "GET", "PUT", "UPDATE", "DELETE", "PATCH", "HEAD", "CONNECT", "OPTIONS", "TRACE",
+];
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum HttpMethod {
@@ -23,7 +25,8 @@ impl FromStr for HttpMethod {
     type Err = HttpParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        NAMES.iter()
+        NAMES
+            .iter()
             .position(|&idx| idx.eq_ignore_ascii_case(s))
             .map(HttpMethod::try_from)
             .ok_or(HttpParseError::from(ParseErrorKind::Method))?
@@ -45,7 +48,7 @@ impl TryFrom<usize> for HttpMethod {
             7 => Ok(HttpMethod::Connect),
             8 => Ok(HttpMethod::Options),
             9 => Ok(HttpMethod::Trace),
-            _ => Err(HttpParseError::from(ParseErrorKind::Method))
+            _ => Err(HttpParseError::from(ParseErrorKind::Method)),
         }
     }
 }

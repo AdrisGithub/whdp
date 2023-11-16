@@ -60,15 +60,12 @@ impl Response {
     }
     fn parse_meta_line(str: Option<&str>) -> Result<(HttpVersion, HttpStatus), HttpParseError> {
         let mut split = str.ok_or(HttpParseError::new())?.split(EMPTY_CHAR);
-        let version = Self::parse_version(split.next())?;
+        let version = HttpVersion::try_from(split.next())?;
         let status = HttpStatus::try_from((
             split.next().ok_or(HttpParseError::new())?,
             split.next().ok_or(HttpParseError::new())?,
         ))?;
         Ok((version, status))
-    }
-    fn parse_version(str: Option<&str>) -> Result<HttpVersion, HttpParseError> {
-        HttpVersion::from_str(str.ok_or(HttpParseError::new())?)
     }
 }
 

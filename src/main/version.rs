@@ -25,6 +25,13 @@ impl FromStr for HttpVersion {
     }
 }
 
+impl TryFrom<Option<&str>> for HttpVersion {
+    type Error = HttpParseError;
+    fn try_from(value: Option<&str>) -> Result<Self, Self::Error> {
+        value.ok_or(HttpParseError::new()).map(Self::from_str)?
+    }
+}
+
 impl TryFrom<f32> for HttpVersion {
     type Error = HttpParseError;
     fn try_from(value: f32) -> Result<Self, Self::Error> {

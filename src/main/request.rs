@@ -84,10 +84,6 @@ impl Request {
     fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
         str.ok_or(HttpParseError::new()).map(String::from)
     }
-    fn parse_version(str: Option<&str>) -> Result<HttpVersion, HttpParseError> {
-        str.ok_or(HttpParseError::new())
-            .map(HttpVersion::from_str)?
-    }
     fn parse_meta_data_line(
         str: Option<&str>,
     ) -> Result<(HttpMethod, String, HttpVersion), HttpParseError> {
@@ -95,7 +91,7 @@ impl Request {
         Ok((
             Self::parse_method(split.next())?,
             Self::parse_uri(split.next())?,
-            Self::parse_version(split.next())?,
+            HttpVersion::try_from(split.next())?,
         ))
     }
     pub fn get_method(&self) -> &HttpMethod {

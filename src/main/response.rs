@@ -3,6 +3,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
+use crate::status::presets::ok;
 use crate::status::HttpStatus;
 use crate::util::{parse_body, parse_header, ParseKeyValue, EMPTY_CHAR};
 use crate::version::HttpVersion;
@@ -81,6 +82,16 @@ impl FromStr for Response {
             headers,
             body,
         })
+    }
+}
+impl Default for Response {
+    fn default() -> Self {
+        Self {
+            headers: BTreeMap::new(),
+            status: ok(),
+            version: HttpVersion::OnePointOne,
+            body: String::from("Hello, World"),
+        }
     }
 }
 

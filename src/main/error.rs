@@ -1,11 +1,10 @@
 use std::fmt::{Debug, Display, Formatter};
-use std::io::Error;
 
 const MESSAGES: [&str; 4] = [
     "Unknown Failure at parsing the Request",
     "Failure at a IO operation",
     "Failure at parsing the HTTP Method",
-    "Failure at parsing the HTTP Version"
+    "Failure at parsing the HTTP Version",
 ];
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Hash, Debug)]
@@ -46,7 +45,6 @@ impl Default for HttpParseError {
     }
 }
 
-
 impl Debug for HttpParseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.0.to_string())
@@ -56,11 +54,5 @@ impl Debug for HttpParseError {
 impl Display for HttpParseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(self, f)
-    }
-}
-
-impl From<Error> for HttpParseError {
-    fn from(_value: Error) -> Self {
-        HttpParseError::new()
     }
 }

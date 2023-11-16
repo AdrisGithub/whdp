@@ -31,6 +31,33 @@ impl Response {
     pub fn destruct(self) -> (HttpVersion, HttpStatus, BTreeMap<String, String>, String) {
         (self.version, self.status, self.headers, self.body)
     }
+    pub fn set_body(&mut self, body: String) -> &mut Response {
+        self.body = body;
+        self
+    }
+    pub fn set_version(&mut self, version: HttpVersion) -> &mut Response {
+        self.version = version;
+        self
+    }
+    pub fn set_status(&mut self, status: HttpStatus) -> &mut Response {
+        self.status = status;
+        self
+    }
+    pub fn add_header(&mut self, kv: (String, String)) -> &mut Response {
+        self.headers.insert(kv.0, kv.1);
+        self
+    }
+    pub fn remove_header(&mut self, key: &String) -> &mut Response {
+        self.headers.remove(key);
+        self
+    }
+    pub fn get_headers_mut(&mut self) -> &mut BTreeMap<String, String> {
+        &mut self.headers
+    }
+    pub fn append_body(&mut self, str: &str) -> &mut Response {
+        self.body.push_str(str);
+        self
+    }
     fn parse_meta_line(str: Option<&str>) -> Result<(HttpVersion, HttpStatus), HttpParseError> {
         let mut split = str.ok_or(HttpParseError::new())?.split(EMPTY_CHAR);
         let version = Self::parse_version(split.next())?;

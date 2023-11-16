@@ -34,6 +34,33 @@ impl HttpStatus {
     pub fn destruct(self) -> (u16, String) {
         (self.code, self.message)
     }
+    pub fn r#continue() -> Self {
+        Self::from((100, "Continue"))
+    }
+    pub fn ok() -> Self {
+        Self::from((200, "OK"))
+    }
+    pub fn created() -> Self {
+        Self::from((201, "Created"))
+    }
+    pub fn no_content() -> Self {
+        Self::from((204, "No Content"))
+    }
+    pub fn bad_request() -> Self {
+        Self::from((400, "Bad Request"))
+    }
+    pub fn not_found() -> Self {
+        Self::from((404, "Not Found"))
+    }
+    pub fn unsupported_media_type() -> Self {
+        Self::from((415, "Unsupported Media Type"))
+    }
+    pub fn internal_server_error() -> Self {
+        Self::from((500, "Internal Server Error"))
+    }
+    pub fn not_implemented() -> Self {
+        Self::from((501, "Not Implemented"))
+    }
 }
 
 impl From<(u16, String)> for HttpStatus {

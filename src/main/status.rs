@@ -34,33 +34,6 @@ impl HttpStatus {
     pub fn destruct(self) -> (u16, String) {
         (self.code, self.message)
     }
-    pub fn r#continue() -> Self {
-        Self::from((100, "Continue"))
-    }
-    pub fn ok() -> Self {
-        Self::from((200, "OK"))
-    }
-    pub fn created() -> Self {
-        Self::from((201, "Created"))
-    }
-    pub fn no_content() -> Self {
-        Self::from((204, "No Content"))
-    }
-    pub fn bad_request() -> Self {
-        Self::from((400, "Bad Request"))
-    }
-    pub fn not_found() -> Self {
-        Self::from((404, "Not Found"))
-    }
-    pub fn unsupported_media_type() -> Self {
-        Self::from((415, "Unsupported Media Type"))
-    }
-    pub fn internal_server_error() -> Self {
-        Self::from((500, "Internal Server Error"))
-    }
-    pub fn not_implemented() -> Self {
-        Self::from((501, "Not Implemented"))
-    }
 }
 
 impl From<(u16, String)> for HttpStatus {
@@ -147,5 +120,37 @@ impl Display for HttpStatus {
 impl Debug for HttpStatus {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Display::fmt(self, f)
+    }
+}
+
+pub mod presets {
+    use crate::status::HttpStatus;
+
+    pub fn r#continue() -> HttpStatus {
+        HttpStatus::from((100, "Continue"))
+    }
+    pub fn ok() -> HttpStatus {
+        HttpStatus::from((200, "OK"))
+    }
+    pub fn created() -> HttpStatus {
+        HttpStatus::from((201, "Created"))
+    }
+    pub fn no_content() -> HttpStatus {
+        HttpStatus::from((204, "No Content"))
+    }
+    pub fn bad_request() -> HttpStatus {
+        HttpStatus::from((400, "Bad Request"))
+    }
+    pub fn not_found() -> HttpStatus {
+        HttpStatus::from((404, "Not Found"))
+    }
+    pub fn unsupported_media_type() -> HttpStatus {
+        HttpStatus::from((415, "Unsupported Media Type"))
+    }
+    pub fn internal_server_error() -> HttpStatus {
+        HttpStatus::from((500, "Internal Server Error"))
+    }
+    pub fn not_implemented() -> HttpStatus {
+        HttpStatus::from((501, "Not Implemented"))
     }
 }

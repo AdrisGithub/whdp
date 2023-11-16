@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
-use crate::error::HttpParseError;
+use crate::error::{HttpParseError, ParseErrorKind};
 
 const NAMES: [&str; 4] = ["HTTP/1.0", "HTTP/1.1", "HTTP/2", "HTTP/3"];
 
@@ -19,8 +19,8 @@ impl FromStr for HttpVersion {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         NAMES.iter()
             .position(|&idx| idx.eq_ignore_ascii_case(s))
-            .map(|x| HttpVersion::try_from(x).unwrap())
-            .ok_or(HttpParseError::new())
+            .map(HttpVersion::try_from)
+            .ok_or(HttpParseError::from(ParseErrorKind::Version))?
     }
 }
 
@@ -39,7 +39,7 @@ impl TryFrom<usize> for HttpVersion {
             1 => Ok(HttpVersion::OnePointOne),
             2 => Ok(HttpVersion::Two),
             3 => Ok(HttpVersion::Three),
-            _ => Err(HttpParseError::new()),
+            _ => Err(HttpParseError::from(ParseErrorKind::Version)),
         }
     }
 }
@@ -58,7 +58,7 @@ impl TryFrom<f64> for HttpVersion {
         } else if value == 3.0 {
             Ok(HttpVersion::Three)
         } else {
-            Err(HttpParseError::new())
+            Err(HttpParseError::from(ParseErrorKind::Version))
         }
     }
 }
@@ -69,6 +69,6 @@ impl Debug for HttpVersion{
 }
 impl Display for HttpVersion{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", NAMES[*self as usize])
+        Debug::fmt(f,self)
     }
 }

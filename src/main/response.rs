@@ -1,8 +1,10 @@
 use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
+use crate::error::HttpParseError;
 use crate::status::HttpStatus;
-use crate::util::ParseKeyValue;
+use crate::util::{parse_body, parse_header, ParseKeyValue, EMPTY_CHAR};
 use crate::version::HttpVersion;
 
 pub struct Response {
@@ -28,6 +30,18 @@ impl Response {
     pub fn destruct(self) -> (HttpVersion, HttpStatus, BTreeMap<String, String>, String) {
         (self.version, self.status, self.headers, self.body)
     }
+    fn parse_meta_line(str: Option<&str>) -> Result<(HttpVersion, HttpStatus), HttpParseError> {
+        let mut split = str.ok_or(HttpParseError::new())?.split(EMPTY_CHAR);
+        let version = Self::parse_version(split.next())?;
+        let status = HttpStatus::try_from((
+            split.next().ok_or(HttpParseError::new())?,
+            split.next().ok_or(HttpParseError::new())?,
+        ))?;
+        Ok((version, status))
+    }
+    fn parse_version(str: Option<&str>) -> Result<HttpVersion, HttpParseError> {
+        HttpVersion::from_str(str.ok_or(HttpParseError::new())?)
+    }
 }
 
 impl Display for Response {
@@ -40,5 +54,21 @@ impl Display for Response {
             self.headers.parse_key_value(),
             self.body
         )
+    }
+}
+
+impl TryFrom<String> for Response {
+    type Error = HttpParseError;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let mut value = value.lines();
+        let (version, status) = Self::parse_meta_line(value.next())?;
+        let headers = parse_header(&mut value)?;
+        let body = parse_body(&mut value);
+        Ok(Self {
+            version,
+            status,
+            headers,
+            body,
+        })
     }
 }

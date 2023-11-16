@@ -1,4 +1,5 @@
 use std::fmt::{Debug, Display, Formatter};
+use std::io::Error;
 
 const MESSAGE: &str = "Failure at parsing";
 
@@ -28,5 +29,10 @@ impl Debug for HttpParseError {
 impl Display for HttpParseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(self, f)
+    }
+}
+impl From<Error> for HttpParseError{
+    fn from(_value: Error) -> Self {
+        HttpParseError::new()
     }
 }

@@ -34,15 +34,13 @@ impl FromStr for Request {
         let (method, uri, version) = Self::parse_meta_data_line(lines.next())?;
         let headers = Self::parse_header(&mut lines)?;
         let body = Self::parse_body(&mut lines);
-        Ok(
-            Self {
-                method,
-                uri,
-                version,
-                headers,
-                body,
-            }
-        )
+        Ok(Self {
+            method,
+            uri,
+            version,
+            headers,
+            body,
+        })
     }
 }
 
@@ -63,19 +61,18 @@ impl TryFrom<&[u8]> for Request {
 impl TryFrom<Vec<u8>> for Request {
     type Error = HttpParseError;
     fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
-        let string = String::from_utf8(value)
-            .map_err(|_a| HttpParseError::new())?;
+        let string = String::from_utf8(value).map_err(|_a| HttpParseError::new())?;
         Self::try_from(string)
     }
 }
 
 impl TryFrom<&mut TcpStream> for Request {
     type Error = HttpParseError;
-
-
     fn try_from(value: &mut TcpStream) -> Result<Self, Self::Error> {
         let mut reader = BufReader::new(value);
-        let received: Vec<u8> = reader.fill_buf()?
+        let received: Vec<u8> = reader
+            .fill_buf()
+            .map_err(|_err| HttpParseError::new())?
             .to_vec();
         reader.consume(received.len());
         Self::try_from(received)
@@ -84,12 +81,10 @@ impl TryFrom<&mut TcpStream> for Request {
 
 impl Request {
     fn parse_method(str: Option<&str>) -> Result<HttpMethod, HttpParseError> {
-        str.ok_or(HttpParseError::new())
-            .map(HttpMethod::from_str)?
+        str.ok_or(HttpParseError::new()).map(HttpMethod::from_str)?
     }
     fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
-        str.ok_or(HttpParseError::new())
-            .map(String::from)
+        str.ok_or(HttpParseError::new()).map(String::from)
     }
     fn parse_version(str: Option<&str>) -> Result<HttpVersion, HttpParseError> {
         str.ok_or(HttpParseError::new())
@@ -100,12 +95,14 @@ impl Request {
         lines.for_each(|str| string.push_str(str));
         string
     }
-    fn parse_meta_data_line(str: Option<&str>) -> Result<(HttpMethod, String, HttpVersion), HttpParseError> {
+    fn parse_meta_data_line(
+        str: Option<&str>,
+    ) -> Result<(HttpMethod, String, HttpVersion), HttpParseError> {
         let mut split = str.ok_or(HttpParseError::new())?.split(' ');
         Ok((
             Self::parse_method(split.next())?,
             Self::parse_uri(split.next())?,
-            Self::parse_version(split.next())?
+            Self::parse_version(split.next())?,
         ))
     }
     fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpParseError> {
@@ -117,16 +114,20 @@ impl Request {
                 let (key, val) = Self::parse_key_value(line)?;
                 map.insert(key, val);
                 opt_line = lines.next();
-            } else { opt_line = None }
+            } else {
+                opt_line = None
+            }
         }
         Ok(map)
     }
     fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
         let mut key_value = str.split(KEY_VALUE_DELIMITER);
-        let key = key_value.next()
+        let key = key_value
+            .next()
             .ok_or(HttpParseError::new())
             .map(String::from)?;
-        let value = key_value.next()
+        let value = key_value
+            .next()
             .ok_or(HttpParseError::new())
             .map(String::from)?;
         Ok((key, value))
@@ -160,7 +161,15 @@ impl Request {
 
 impl Debug for Request {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {} {} \n{}\n{}", self.method, self.uri, self.version, self.headers_to_string(), self.body)
+        write!(
+            f,
+            "{} {} {} \n{}\n{}",
+            self.method,
+            self.uri,
+            self.version,
+            self.headers_to_string(),
+            self.body
+        )
     }
 }
 

@@ -62,13 +62,15 @@ impl TryFrom<f64> for HttpVersion {
         }
     }
 }
-impl Debug for HttpVersion{
+
+impl Debug for HttpVersion {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", NAMES[*self as usize])
     }
 }
-impl Display for HttpVersion{
+
+impl Display for HttpVersion {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(f,self)
+        Debug::fmt(f, self)
     }
 }

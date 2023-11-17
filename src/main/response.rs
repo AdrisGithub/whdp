@@ -48,6 +48,9 @@ impl Response {
         self.headers.remove(key);
         self
     }
+    pub fn get_header(&mut self,key : &String)-> Option<&String>{
+        self.headers.get(key)
+    }
     pub fn get_headers_mut(&mut self) -> &mut BTreeMap<String, String> {
         &mut self.headers
     }

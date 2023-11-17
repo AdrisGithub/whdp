@@ -32,7 +32,13 @@ impl FromStr for HttpMethod {
             .ok_or(HttpParseError::from(ParseErrorKind::Method))?
     }
 }
-
+impl TryFrom<Option<&str>> for HttpMethod{
+    type Error = HttpParseError;
+    fn try_from(value: Option<&str>) -> Result<Self, Self::Error> {
+        value.ok_or(HttpParseError::from(ParseErrorKind::Method))
+            .map(HttpMethod::from_str)?
+    }
+}
 impl TryFrom<usize> for HttpMethod {
     type Error = HttpParseError;
 

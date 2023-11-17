@@ -4,7 +4,7 @@ use std::io::{BufRead, BufReader};
 use std::net::TcpStream;
 use std::str::FromStr;
 
-use crate::error::{HttpParseError, ParseErrorKind::Request as ReqError};
+use crate::error::{HttpParseError, ParseErrorKind::Req as ReqError};
 use crate::method::HttpMethod;
 use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header,parse_uri,ParseKeyValue};
 use crate::version::HttpVersion;

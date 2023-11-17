@@ -12,10 +12,10 @@ pub enum ParseErrorKind {
     IO,
     Method,
     Version,
-    Request,
+    Req,
     Status,
     Util,
-    Response,
+    Resp,
 }
 
 impl Display for ParseErrorKind {

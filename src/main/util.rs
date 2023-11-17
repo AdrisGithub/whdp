@@ -3,7 +3,6 @@ use std::str::Lines;
 
 use crate::error::HttpParseError;
 use crate::error::ParseErrorKind::Util;
-use crate::util;
 
 pub const KEY_VALUE_DELIMITER: &str = ": ";
 pub const NEW_LINE: char = '\n';
@@ -47,7 +46,7 @@ pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpP
     while opt_line.is_some() {
         let line = opt_line.ok_or(HttpParseError::from(Util))?;
         if !line.is_empty() {
-            let (key, val) = util::parse_key_value(line)?;
+            let (key, val) = parse_key_value(line)?;
             map.insert(key, val);
             opt_line = lines.next();
         } else {
@@ -56,9 +55,11 @@ pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpP
     }
     Ok(map)
 }
+
 pub fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
     str.ok_or(HttpParseError::new()).map(String::from)
 }
+
 fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
     let mut key_value = str.split(KEY_VALUE_DELIMITER);
     let key = key_value

@@ -24,6 +24,13 @@ impl ParseKeyValue for BTreeMap<String, String> {
         string
     }
 }
+
+pub trait Destruct {
+    type Item;
+
+    fn destruct(self) -> Self::Item;
+}
+
 pub fn parse_body(lines: &mut Lines) -> String {
     let mut string = String::new();
     lines.for_each(|str| {
@@ -32,6 +39,7 @@ pub fn parse_body(lines: &mut Lines) -> String {
     });
     string
 }
+
 pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpParseError> {
     let mut map: BTreeMap<String, String> = BTreeMap::new();
     let mut opt_line = lines.next();
@@ -47,6 +55,7 @@ pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpP
     }
     Ok(map)
 }
+
 fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
     let mut key_value = str.split(KEY_VALUE_DELIMITER);
     let key = key_value

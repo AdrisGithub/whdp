@@ -4,7 +4,7 @@ use crate::error::ParseErrorKind::Unkown;
 use crate::util::Destruct;
 
 const MESSAGE: &str = "Failure:";
-const UNKNOWN_MSG: &str = "Unkown";
+const UNKNOWN_MSG: &str = "Something unexpected went wrong";
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Hash, Debug)]
 pub enum ParseErrorKind {

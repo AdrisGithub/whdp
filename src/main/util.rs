@@ -30,7 +30,6 @@ pub fn parse_body(lines: &mut Lines) -> String {
         string.push_str(str);
         string.push(NEW_LINE);
     });
-    string.remove(string.len()-1);
     string
 }
 pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpParseError> {

@@ -16,7 +16,7 @@ pub enum ParseErrorKind {
 
 impl Display for ParseErrorKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}: {}", self, MESSAGES[*self as usize])
+        Debug::fmt(self,f)
     }
 }
 

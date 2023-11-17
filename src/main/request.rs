@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 use crate::error::HttpParseError;
 use crate::method::HttpMethod;
-use crate::util::{parse_body, parse_header, ParseKeyValue, EMPTY_CHAR};
+use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header, ParseKeyValue};
 use crate::version::HttpVersion;
 
 #[derive(Clone, Eq, PartialEq, Hash)]
@@ -138,5 +138,12 @@ pub trait TryRequest {
 impl TryRequest for TcpStream {
     fn try_to_request(&mut self) -> Result<Request, HttpParseError> {
         Request::try_from(self)
+    }
+}
+
+impl Destruct for Request {
+    type Item = (HttpMethod, String, HttpVersion, BTreeMap<String, String>, String);
+    fn destruct(self) -> Self::Item {
+        (self.method, self.uri, self.version, self.headers, self.body)
     }
 }

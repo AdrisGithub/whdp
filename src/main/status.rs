@@ -2,6 +2,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
+use crate::error::ParseErrorKind::Status;
 use crate::util::{Destruct, EMPTY_CHAR};
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash)]
@@ -60,7 +61,7 @@ impl From<(u16, &str)> for HttpStatus {
 impl TryFrom<(usize, &str)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (usize, &str)) -> Result<Self, Self::Error> {
-        let size = u16::try_from(value.0).map_err(|_err| HttpParseError::new())?;
+        let size = u16::try_from(value.0).map_err(|_err| HttpParseError::from(Status))?;
         Ok(Self::from((size, value.1)))
     }
 }
@@ -68,7 +69,7 @@ impl TryFrom<(usize, &str)> for HttpStatus {
 impl TryFrom<(isize, &str)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (isize, &str)) -> Result<Self, Self::Error> {
-        let size = usize::try_from(value.0).map_err(|_err| HttpParseError::new())?;
+        let size = usize::try_from(value.0).map_err(|_err| HttpParseError::from(Status))?;
         Self::try_from((size, value.1))
     }
 }
@@ -76,7 +77,7 @@ impl TryFrom<(isize, &str)> for HttpStatus {
 impl TryFrom<(isize, String)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (isize, String)) -> Result<Self, Self::Error> {
-        let size = usize::try_from(value.0).map_err(|_err| HttpParseError::new())?;
+        let size = usize::try_from(value.0).map_err(|_err| HttpParseError::from(Status))?;
         Self::try_from((size, value.1))
     }
 }
@@ -84,7 +85,7 @@ impl TryFrom<(isize, String)> for HttpStatus {
 impl TryFrom<(usize, String)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (usize, String)) -> Result<Self, Self::Error> {
-        let size = u16::try_from(value.0).map_err(|_err| HttpParseError::new())?;
+        let size = u16::try_from(value.0).map_err(|_err| HttpParseError::from(Status))?;
         Ok(Self::from((size, value.1)))
     }
 }
@@ -93,8 +94,8 @@ impl FromStr for HttpStatus {
     type Err = HttpParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut split = s.split(EMPTY_CHAR);
-        let first = split.next().ok_or(HttpParseError::new())?;
-        let second = split.next().ok_or(HttpParseError::new())?;
+        let first = split.next().ok_or(HttpParseError::from(Status))?;
+        let second = split.next().ok_or(HttpParseError::from(Status))?;
         Self::try_from((first, second))
     }
 }
@@ -102,7 +103,7 @@ impl FromStr for HttpStatus {
 impl TryFrom<(&str, &str)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (&str, &str)) -> Result<Self, Self::Error> {
-        let code = u16::from_str(value.0).map_err(|_err| HttpParseError::new())?;
+        let code = u16::from_str(value.0).map_err(|_err| HttpParseError::from(Status))?;
         Ok(Self::from((code, value.1)))
     }
 }
@@ -116,7 +117,7 @@ impl From<&HttpStatus> for HttpStatusGroup {
 impl TryFrom<isize> for HttpStatusGroup {
     type Error = HttpParseError;
     fn try_from(value: isize) -> Result<Self, Self::Error> {
-        let value = usize::try_from(value).map_err(|_err| HttpParseError::new())?;
+        let value = usize::try_from(value).map_err(|_err| HttpParseError::from(Status))?;
         Ok(Self::from(value))
     }
 }

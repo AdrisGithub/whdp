@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
-use crate::error::HttpParseError;
+use crate::error::{HttpParseError, ParseErrorKind};
 use crate::status::HttpStatus;
 use crate::status::presets::ok;
 use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header, ParseKeyValue};
@@ -60,11 +60,12 @@ impl Response {
         self
     }
     fn parse_meta_line(str: Option<&str>) -> Result<(HttpVersion, HttpStatus), HttpParseError> {
-        let mut split = str.ok_or(HttpParseError::new())?.split(EMPTY_CHAR);
+        let mut split = str.ok_or(HttpParseError::from(ParseErrorKind::Request))?
+            .split(EMPTY_CHAR);
         let version = HttpVersion::try_from(split.next())?;
         let status = HttpStatus::try_from((
-            split.next().ok_or(HttpParseError::new())?,
-            split.next().ok_or(HttpParseError::new())?,
+            split.next().ok_or(HttpParseError::from(ParseErrorKind::Request))?,
+            split.next().ok_or(HttpParseError::from(ParseErrorKind::Request))?,
         ))?;
         Ok((version, status))
     }

@@ -57,7 +57,7 @@ pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpP
 }
 
 pub fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
-    str.ok_or(HttpParseError::new()).map(String::from)
+    str.ok_or(HttpParseError::from(Util)).map(String::from)
 }
 
 fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {

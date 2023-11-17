@@ -127,7 +127,7 @@ impl Destruct for Response {
     type Item = (HttpVersion, HttpStatus, BTreeMap<String, String>, String);
     fn destruct(self) -> Self::Item {
         (self.version, self.status, self.headers, self.body)
-    };
+    }
 }
 
 #[cfg(test)]

@@ -2,7 +2,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
-use crate::util::EMPTY_CHAR;
+use crate::util::{Destruct, EMPTY_CHAR};
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash)]
 pub struct HttpStatus {
@@ -33,7 +33,11 @@ impl HttpStatus {
     pub const fn get_message(&self) -> &String {
         &self.message
     }
-    pub fn destruct(self) -> (u16, String) {
+}
+
+impl Destruct for HttpStatus {
+    type Item = (u16, String);
+    fn destruct(self) -> Self::Item {
         (self.code, self.message)
     }
 }
@@ -46,11 +50,13 @@ impl From<(u16, String)> for HttpStatus {
         }
     }
 }
+
 impl From<(u16, &str)> for HttpStatus {
     fn from(value: (u16, &str)) -> Self {
         Self::from((value.0, String::from(value.1)))
     }
 }
+
 impl TryFrom<(usize, &str)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (usize, &str)) -> Result<Self, Self::Error> {
@@ -58,6 +64,7 @@ impl TryFrom<(usize, &str)> for HttpStatus {
         Ok(Self::from((size, value.1)))
     }
 }
+
 impl TryFrom<(isize, &str)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (isize, &str)) -> Result<Self, Self::Error> {
@@ -65,6 +72,7 @@ impl TryFrom<(isize, &str)> for HttpStatus {
         Self::try_from((size, value.1))
     }
 }
+
 impl TryFrom<(isize, String)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (isize, String)) -> Result<Self, Self::Error> {
@@ -72,6 +80,7 @@ impl TryFrom<(isize, String)> for HttpStatus {
         Self::try_from((size, value.1))
     }
 }
+
 impl TryFrom<(usize, String)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (usize, String)) -> Result<Self, Self::Error> {
@@ -79,6 +88,7 @@ impl TryFrom<(usize, String)> for HttpStatus {
         Ok(Self::from((size, value.1)))
     }
 }
+
 impl FromStr for HttpStatus {
     type Err = HttpParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -88,6 +98,7 @@ impl FromStr for HttpStatus {
         Self::try_from((first, second))
     }
 }
+
 impl TryFrom<(&str, &str)> for HttpStatus {
     type Error = HttpParseError;
     fn try_from(value: (&str, &str)) -> Result<Self, Self::Error> {
@@ -147,27 +158,35 @@ pub mod presets {
     pub fn r#continue() -> HttpStatus {
         HttpStatus::from((100, "Continue"))
     }
+
     pub fn ok() -> HttpStatus {
         HttpStatus::from((200, "OK"))
     }
+
     pub fn created() -> HttpStatus {
         HttpStatus::from((201, "Created"))
     }
+
     pub fn no_content() -> HttpStatus {
         HttpStatus::from((204, "No Content"))
     }
+
     pub fn bad_request() -> HttpStatus {
         HttpStatus::from((400, "Bad Request"))
     }
+
     pub fn not_found() -> HttpStatus {
         HttpStatus::from((404, "Not Found"))
     }
+
     pub fn unsupported_media_type() -> HttpStatus {
         HttpStatus::from((415, "Unsupported Media Type"))
     }
+
     pub fn internal_server_error() -> HttpStatus {
         HttpStatus::from((500, "Internal Server Error"))
     }
+
     pub fn not_implemented() -> HttpStatus {
         HttpStatus::from((501, "Not Implemented"))
     }

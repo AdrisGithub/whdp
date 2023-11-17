@@ -4,11 +4,11 @@ use std::str::Lines;
 use crate::error::HttpParseError;
 use crate::error::ParseErrorKind::Util;
 
-pub const KEY_VALUE_DELIMITER: &str = ": ";
-pub const NEW_LINE: char = '\n';
-pub const EMPTY_CHAR: char = ' ';
+pub(crate) const KEY_VALUE_DELIMITER: &str = ": ";
+pub(crate) const NEW_LINE: char = '\n';
+pub(crate) const EMPTY_CHAR: char = ' ';
 
-pub trait ParseKeyValue {
+pub(crate) trait ParseKeyValue {
     fn parse_key_value(&self) -> String;
 }
 
@@ -31,7 +31,7 @@ pub trait Destruct {
     fn destruct(self) -> Self::Item;
 }
 
-pub fn parse_body(lines: &mut Lines) -> String {
+pub(crate) fn parse_body(lines: &mut Lines) -> String {
     let mut string = String::new();
     lines.for_each(|str| {
         string.push_str(str);
@@ -40,7 +40,7 @@ pub fn parse_body(lines: &mut Lines) -> String {
     string
 }
 
-pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpParseError> {
+pub(crate) fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpParseError> {
     let mut map: BTreeMap<String, String> = BTreeMap::new();
     let mut opt_line = lines.next();
     while opt_line.is_some() {
@@ -56,7 +56,7 @@ pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpP
     Ok(map)
 }
 
-pub fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
+pub(crate) fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
     str.ok_or(HttpParseError::from(Util)).map(String::from)
 }
 

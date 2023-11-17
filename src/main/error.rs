@@ -1,10 +1,11 @@
 use std::fmt::{Debug, Display, Formatter};
 
-const MESSAGES: [&str; 4] = [
+const MESSAGES: [&str; 5] = [
     "Unknown Failure at parsing the Request",
     "Failure at a IO operation",
     "Failure at parsing the HTTP Method",
     "Failure at parsing the HTTP Version",
+    "failure at parsing the HTTP Request",
 ];
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Hash, Debug)]
@@ -13,6 +14,7 @@ pub enum ParseErrorKind {
     IO,
     Method,
     Version,
+    Request,
 }
 
 impl Display for ParseErrorKind {

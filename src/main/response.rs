@@ -3,9 +3,9 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::HttpParseError;
-use crate::status::presets::ok;
 use crate::status::HttpStatus;
-use crate::util::{parse_body, parse_header, ParseKeyValue, EMPTY_CHAR};
+use crate::status::presets::ok;
+use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header, ParseKeyValue};
 use crate::version::HttpVersion;
 
 pub struct Response {
@@ -27,9 +27,6 @@ impl Response {
     }
     pub const fn get_body(&self) -> &String {
         &self.body
-    }
-    pub fn destruct(self) -> (HttpVersion, HttpStatus, BTreeMap<String, String>, String) {
-        (self.version, self.status, self.headers, self.body)
     }
     pub fn set_body(&mut self, body: String) -> &mut Response {
         self.body = body;
@@ -85,6 +82,7 @@ impl Display for Response {
         )
     }
 }
+
 impl Debug for Response {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         Display::fmt(self, f)
@@ -97,6 +95,7 @@ impl TryFrom<String> for Response {
         Self::from_str(value.as_str())
     }
 }
+
 impl FromStr for Response {
     type Err = HttpParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -112,6 +111,7 @@ impl FromStr for Response {
         })
     }
 }
+
 impl Default for Response {
     fn default() -> Self {
         Self {
@@ -123,10 +123,18 @@ impl Default for Response {
     }
 }
 
+impl Destruct for Response {
+    type Item = (HttpVersion, HttpStatus, BTreeMap<String, String>, String);
+    fn destruct(self) -> Self::Item {
+        (self.version, self.status, self.headers, self.body)
+    };
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::response::Response;
     use std::fs::read_to_string;
+
+    use crate::response::Response;
 
     #[test]
     fn test() {

@@ -10,10 +10,10 @@ pub use status::presets;
 pub use util::Destruct;
 pub use version::HttpVersion;
 
-pub mod error;
-pub mod method;
-pub mod request;
-pub mod response;
-pub mod status;
-pub mod util;
-pub mod version;
+mod error;
+mod method;
+mod request;
+mod response;
+mod status;
+mod util;
+mod version;

@@ -55,7 +55,9 @@ pub fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>, HttpP
     }
     Ok(map)
 }
-
+pub fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
+    str.ok_or(HttpParseError::new()).map(String::from)
+}
 fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
     let mut key_value = str.split(KEY_VALUE_DELIMITER);
     let key = key_value

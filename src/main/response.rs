@@ -5,8 +5,11 @@ use std::str::FromStr;
 use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::status::HttpStatus;
 use crate::status::presets::ok;
-use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header, ParseKeyValue};
+use crate::util::{Destruct, EMPTY_CHAR, OPTION_WAS_EMPTY, parse_body, parse_header, ParseKeyValue};
 use crate::version::HttpVersion;
+
+const VALIDATE: &str = "min. 1 field was not filled with a value";
+
 /// Struct for representing a HTTP Response
 pub struct Response {
     version: HttpVersion,
@@ -81,14 +84,17 @@ impl Response {
         self
     }
     fn parse_meta_line(str: Option<&str>) -> Result<(HttpVersion, HttpStatus), HttpParseError> {
-        let mut split = str.ok_or(HttpParseError::from(Req))?
+        let mut split = str.ok_or(Self::error_option_empty())?
             .split(EMPTY_CHAR);
         let version = HttpVersion::try_from(split.next())?;
         let status = HttpStatus::try_from((
-            split.next().ok_or(HttpParseError::from(Req))?,
-            split.next().ok_or(HttpParseError::from(Req))?,
+            split.next().ok_or(Self::error_option_empty())?,
+            split.next().ok_or(Self::error_option_empty())?,
         ))?;
         Ok((version, status))
+    }
+    fn error_option_empty() -> HttpParseError {
+        HttpParseError::from((Req, OPTION_WAS_EMPTY))
     }
 }
 
@@ -181,7 +187,7 @@ impl ResponseBuilder {
     /// trys to make it to a [Response] otherwise returns a [HttpParseError]
     pub fn build(self) -> Result<Response, HttpParseError> {
         if !self.validate() {
-            return Err(HttpParseError::from(Req));
+            return Err(HttpParseError::from((Req,VALIDATE)));
         }
         Ok(Response {
             version: self.version.unwrap(),

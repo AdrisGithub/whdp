@@ -3,6 +3,7 @@ pub use error::ParseErrorKind;
 pub use method::HttpMethod;
 pub use request::Request;
 pub use response::Response;
+pub use response::ResponseBuilder;
 pub use status::HttpStatus;
 pub use status::HttpStatusGroup;
 pub use status::presets;

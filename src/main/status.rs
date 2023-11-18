@@ -4,33 +4,43 @@ use std::str::FromStr;
 use crate::error::HttpParseError;
 use crate::error::ParseErrorKind::Status;
 use crate::util::{Destruct, EMPTY_CHAR};
-
+/// Struct for HTTP Status Codes
 #[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash)]
 pub struct HttpStatus {
     code: u16,
     message: String,
 }
-
+/// Enum for HTTP Status Codes Groups
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Hash)]
 pub enum HttpStatusGroup {
+    /// between 100 - 199
     Informational,
+    /// between 200 - 299
     Successful,
+    /// between 300 - 399
     Redirection,
+    /// between 400 - 499
     ClientError,
+    /// between 500 - 599
     ServerError,
+    /// incase self-made HTTP Status is invalid
     Unknown,
 }
 
 impl HttpStatus {
+    /// gets the associated [HttpStatusGroup]
     pub fn get_group(&self) -> HttpStatusGroup {
         HttpStatusGroup::from(self.code as usize)
     }
+    /// looks if the own [HttpStatusGroup] is the same as the given one
     pub fn has_group(&self, group: &HttpStatusGroup) -> bool {
         self.get_group().eq(group)
     }
+    /// returns the HTTP Status Code
     pub const fn get_code(&self) -> &u16 {
         &self.code
     }
+    /// returns the name associated with its Status Code
     pub const fn get_message(&self) -> &String {
         &self.message
     }
@@ -152,42 +162,64 @@ impl Debug for HttpStatus {
         Display::fmt(self, f)
     }
 }
-
+/// Several preset Status Codes like [OK], [Created], [Not Found]
+///
+/// [OK]: crate::presets::ok
+/// [Created]: crate::presets::created
+/// [Not Found]: crate::presets::not_found
 pub mod presets {
     use crate::status::HttpStatus;
-
+    /// preset for the Status code [100]
+    ///
+    /// [100]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100
     pub fn r#continue() -> HttpStatus {
         HttpStatus::from((100, "Continue"))
     }
-
+    /// preset for the Status code [200]
+    ///
+    /// [200]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/200
     pub fn ok() -> HttpStatus {
         HttpStatus::from((200, "OK"))
     }
-
+    /// preset for the Status code [201]
+    ///
+    /// [201]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/201
     pub fn created() -> HttpStatus {
         HttpStatus::from((201, "Created"))
     }
-
+    /// preset for the Status code [204]
+    ///
+    /// [204]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204
     pub fn no_content() -> HttpStatus {
         HttpStatus::from((204, "No Content"))
     }
-
+    /// preset for the Status code [400]
+    ///
+    /// [400]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
     pub fn bad_request() -> HttpStatus {
         HttpStatus::from((400, "Bad Request"))
     }
-
+    /// preset for the Status code [404]
+    ///
+    /// [404]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
     pub fn not_found() -> HttpStatus {
         HttpStatus::from((404, "Not Found"))
     }
-
+    /// preset for the Status code [415]
+    ///
+    /// [415]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/415
     pub fn unsupported_media_type() -> HttpStatus {
         HttpStatus::from((415, "Unsupported Media Type"))
     }
-
+    /// preset for the Status code [500]
+    ///
+    /// [500]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
     pub fn internal_server_error() -> HttpStatus {
         HttpStatus::from((500, "Internal Server Error"))
     }
-
+    /// preset for the Status code [501]
+    ///
+    /// [501]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/501
     pub fn not_implemented() -> HttpStatus {
         HttpStatus::from((501, "Not Implemented"))
     }

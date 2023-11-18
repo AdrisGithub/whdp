@@ -3,7 +3,7 @@
 A library to parse the raw string
 into a workable type and vice versa.
 
-[![Latest version](https://img.shields.io/badge/crates.io-1.0.0-red)](https://crates.io/crates/whdp)
+[![Latest version](https://img.shields.io/badge/crates.io-1.0.1-red)](https://crates.io/crates/whdp)
 [![Documentation](https://docs.rs/log/badge.svg)](https://docs.rs/whdp)
 
 ## Documentation:
@@ -35,7 +35,7 @@ Import the library into your Cargo.toml
 
 ```toml
 [dependencies]
-whdp = "1.0.0"
+whdp = "1.0.1"
 ```
 
 Then just use the `TryRequest` trait to parse it to a `Request`

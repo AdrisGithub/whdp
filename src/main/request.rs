@@ -4,7 +4,7 @@ use std::io::{BufRead, BufReader};
 use std::net::TcpStream;
 use std::str::FromStr;
 
-use crate::error::{HttpParseError, ParseErrorKind::Req as ReqError};
+use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::method::HttpMethod;
 use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header,parse_uri,ParseKeyValue};
 use crate::version::HttpVersion;
@@ -60,7 +60,7 @@ impl TryFrom<Vec<u8>> for Request {
     type Error = HttpParseError;
     fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
         let string = String::from_utf8(value)
-            .map_err(|_a| HttpParseError::from(ReqError))?;
+            .map_err(|_a| HttpParseError::from(Req))?;
         Self::try_from(string)
     }
 }
@@ -71,7 +71,7 @@ impl TryFrom<&mut TcpStream> for Request {
         let mut reader = BufReader::new(value);
         let received: Vec<u8> = reader
             .fill_buf()
-            .map_err(|_err| HttpParseError::from(ReqError))?
+            .map_err(|_err| HttpParseError::from(Req))?
             .to_vec();
         reader.consume(received.len());
         Self::try_from(received)
@@ -82,7 +82,7 @@ impl Request {
     fn parse_meta_data_line(
         str: Option<&str>,
     ) -> Result<(HttpMethod, String, HttpVersion), HttpParseError> {
-        let mut split = str.ok_or(HttpParseError::from(ReqError))?.split(EMPTY_CHAR);
+        let mut split = str.ok_or(HttpParseError::from(Req))?.split(EMPTY_CHAR);
         Ok((
             HttpMethod::try_from(split.next())?,
             parse_uri(split.next())?,

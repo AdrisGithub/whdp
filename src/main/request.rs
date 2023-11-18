@@ -8,7 +8,7 @@ use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::method::HttpMethod;
 use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header,parse_uri,ParseKeyValue};
 use crate::version::HttpVersion;
-
+// Struct for representing a HTTP Request
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Request {
     method: HttpMethod,
@@ -89,18 +89,23 @@ impl Request {
             HttpVersion::try_from(split.next())?,
         ))
     }
+    /// Get the [HttpMethod] of this Request
     pub fn get_method(&self) -> &HttpMethod {
         &self.method
     }
+    /// Get the uri of this Request
     pub fn get_uri(&self) -> &String {
         &self.uri
     }
+    /// Get the headers of this Request
     pub fn get_headers(&self) -> &BTreeMap<String, String> {
         &self.headers
     }
+    /// Get the body of this Request
     pub fn get_body(&self) -> &String {
         &self.body
     }
+    /// Get the version of this Request
     pub fn get_version(&self) -> &HttpVersion {
         &self.version
     }

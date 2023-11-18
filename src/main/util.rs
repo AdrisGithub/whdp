@@ -2,9 +2,9 @@ use std::collections::BTreeMap;
 use std::net::TcpStream;
 use std::str::Lines;
 
+use crate::{ParseErrorKind, Request};
 use crate::error::HttpParseError;
 use crate::error::ParseErrorKind::Util;
-use crate::Request;
 
 pub(crate) const KEY_VALUE_DELIMITER: &str = ": ";
 pub(crate) const NEW_LINE: char = '\n';
@@ -61,7 +61,7 @@ pub(crate) fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>
     let mut map: BTreeMap<String, String> = BTreeMap::new();
     let mut opt_line = lines.next();
     while opt_line.is_some() {
-        let line = opt_line.ok_or(HttpParseError::from(Util))?;
+        let line = opt_line.unwrap();
         if !line.is_empty() {
             let (key, val) = parse_key_value(line)?;
             map.insert(key, val);
@@ -74,20 +74,24 @@ pub(crate) fn parse_header(lines: &mut Lines) -> Result<BTreeMap<String, String>
 }
 
 pub(crate) fn parse_uri(str: Option<&str>) -> Result<String, HttpParseError> {
-    str.ok_or(HttpParseError::from(Util)).map(String::from)
+    str.ok_or(error_option_empty(Util)).map(String::from)
 }
 
 fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
     let mut key_value = str.split(KEY_VALUE_DELIMITER);
     let key = key_value
         .next()
-        .ok_or(HttpParseError::from(Util))
+        .ok_or(error_option_empty(Util))
         .map(String::from)?;
     let value = key_value
         .next()
-        .ok_or(HttpParseError::from(Util))
+        .ok_or(error_option_empty(Util))
         .map(String::from)?;
     Ok((key, value))
+}
+
+pub(crate) fn error_option_empty(kind: ParseErrorKind) -> HttpParseError {
+    HttpParseError::from((kind, OPTION_WAS_EMPTY))
 }
 
 /// Trait for adding a method ro specific types to parse them automatically to a [Request]

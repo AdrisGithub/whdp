@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
-use crate::error::{HttpParseError, ParseErrorKind};
+use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::status::HttpStatus;
 use crate::status::presets::ok;
 use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header, ParseKeyValue};
@@ -16,6 +16,9 @@ pub struct Response {
 }
 
 impl Response {
+    pub const fn builder() -> ResponseBuilder {
+        ResponseBuilder::new()
+    }
     pub const fn get_version(&self) -> &HttpVersion {
         &self.version
     }
@@ -48,7 +51,7 @@ impl Response {
         self.headers.remove(key);
         self
     }
-    pub fn get_header(&mut self,key : &String)-> Option<&String>{
+    pub fn get_header(&mut self, key: &String) -> Option<&String> {
         self.headers.get(key)
     }
     pub fn get_headers_mut(&mut self) -> &mut BTreeMap<String, String> {
@@ -63,12 +66,12 @@ impl Response {
         self
     }
     fn parse_meta_line(str: Option<&str>) -> Result<(HttpVersion, HttpStatus), HttpParseError> {
-        let mut split = str.ok_or(HttpParseError::from(ParseErrorKind::Req))?
+        let mut split = str.ok_or(HttpParseError::from(Req))?
             .split(EMPTY_CHAR);
         let version = HttpVersion::try_from(split.next())?;
         let status = HttpStatus::try_from((
-            split.next().ok_or(HttpParseError::from(ParseErrorKind::Req))?,
-            split.next().ok_or(HttpParseError::from(ParseErrorKind::Req))?,
+            split.next().ok_or(HttpParseError::from(Req))?,
+            split.next().ok_or(HttpParseError::from(Req))?,
         ))?;
         Ok((version, status))
     }
@@ -131,6 +134,63 @@ impl Destruct for Response {
     type Item = (HttpVersion, HttpStatus, BTreeMap<String, String>, String);
     fn destruct(self) -> Self::Item {
         (self.version, self.status, self.headers, self.body)
+    }
+}
+
+pub struct ResponseBuilder {
+    version: Option<HttpVersion>,
+    status: Option<HttpStatus>,
+    headers: Option<BTreeMap<String, String>>,
+    body: Option<String>,
+}
+
+impl ResponseBuilder {
+    pub const fn validate(&self) -> bool {
+        self.body.is_some()
+            && self.status.is_some()
+            && self.headers.is_some()
+            && self.version.is_some()
+    }
+    pub const fn new() -> Self {
+        Self {
+            body: None,
+            status: None,
+            headers: None,
+            version: None,
+        }
+    }
+    pub fn build(self) -> Result<Response, HttpParseError> {
+        if !self.validate() {
+            return Err(HttpParseError::from(Req));
+        }
+        Ok(Response {
+            version: self.version.unwrap(),
+            headers: self.headers.unwrap(),
+            status: self.status.unwrap(),
+            body: self.body.unwrap(),
+        })
+    }
+    pub fn with_headers(mut self, headers: BTreeMap<String, String>) -> Self {
+        self.headers = Some(headers);
+        self
+    }
+    pub fn with_body(mut self, body: String) -> Self {
+        self.body = Some(body);
+        self
+    }
+    pub fn with_version(mut self, version: HttpVersion) -> Self {
+        self.version = Some(version);
+        self
+    }
+    pub fn with_status(mut self, status: HttpStatus) -> Self {
+        self.status = Some(status);
+        self
+    }
+}
+
+impl Default for ResponseBuilder {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

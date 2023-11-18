@@ -4,12 +4,16 @@ use std::str::FromStr;
 use crate::error::{HttpParseError, ParseErrorKind::Version};
 
 const NAMES: [&str; 4] = ["HTTP/1.0", "HTTP/1.1", "HTTP/2", "HTTP/3"];
-
+/// Enum for the 4 different HTTP Version
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum HttpVersion {
+    /// HTTP/1.0
     One,
+    /// HTTP/1.1
     OnePointOne,
+    /// HTTP/2
     Two,
+    /// HTTP/3
     Three,
 }
 

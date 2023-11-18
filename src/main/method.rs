@@ -2,7 +2,10 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::{HttpParseError, ParseErrorKind::Method};
+use crate::util::OPTION_WAS_EMPTY;
 
+const NAME_NOT_EXIST: &str = "Couldn't find a valid HTTP method to that string ";
+const INDEX_WAS_WRONG: &str = "The provided index didn't match";
 const NAMES: [&str; 9] = [
     "POST", "GET", "PUT", "DELETE", "PATCH", "HEAD", "CONNECT", "OPTIONS", "TRACE",
 ];
@@ -55,14 +58,14 @@ impl FromStr for HttpMethod {
             .iter()
             .position(|&idx| idx.eq_ignore_ascii_case(s))
             .map(HttpMethod::try_from)
-            .ok_or(HttpParseError::from(Method))?
+            .ok_or(HttpParseError::from((Method, NAME_NOT_EXIST)))?
     }
 }
 
 impl TryFrom<Option<&str>> for HttpMethod {
     type Error = HttpParseError;
     fn try_from(value: Option<&str>) -> Result<Self, Self::Error> {
-        value.ok_or(HttpParseError::from(Method))
+        value.ok_or(HttpParseError::from((Method, OPTION_WAS_EMPTY)))
             .map(HttpMethod::from_str)?
     }
 }
@@ -81,7 +84,7 @@ impl TryFrom<usize> for HttpMethod {
             6 => Ok(HttpMethod::Connect),
             7 => Ok(HttpMethod::Options),
             8 => Ok(HttpMethod::Trace),
-            _ => Err(HttpParseError::from(Method)),
+            _ => Err(HttpParseError::from((Method, INDEX_WAS_WRONG))),
         }
     }
 }

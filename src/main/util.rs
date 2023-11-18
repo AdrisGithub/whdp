@@ -9,6 +9,7 @@ use crate::Request;
 pub(crate) const KEY_VALUE_DELIMITER: &str = ": ";
 pub(crate) const NEW_LINE: char = '\n';
 pub(crate) const EMPTY_CHAR: char = ' ';
+pub(crate) const OPTION_WAS_EMPTY: &str = "the Option<?> was empty and couldn't get unwrapped";
 
 pub(crate) trait ParseKeyValue {
     fn parse_key_value(&self) -> String;
@@ -26,6 +27,7 @@ impl ParseKeyValue for BTreeMap<String, String> {
         string
     }
 }
+
 /// Trait for destructing structs with private fields.
 /// It can also be used to run destroy logic <br>
 ///
@@ -87,6 +89,7 @@ fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
         .map(String::from)?;
     Ok((key, value))
 }
+
 /// Trait for adding a method ro specific types to parse them automatically to a [Request]
 pub trait TryRequest {
     /// trys to parse it to a [Request] otherwise returns a [HttpParseError]

@@ -213,6 +213,14 @@ impl ResponseBuilder {
         self.status = Some(status);
         self
     }
+    /// replaces the current value with empty header
+    pub fn with_empty_headers(self) -> Self {
+        self.with_headers(BTreeMap::new())
+    }
+    // replaces the current value with an empty body
+    pub fn with_empty_body(self) -> Self {
+        self.with_body(String::new())
+    }
 }
 
 impl Default for ResponseBuilder {

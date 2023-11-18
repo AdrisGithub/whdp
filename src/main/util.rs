@@ -1,8 +1,10 @@
 use std::collections::BTreeMap;
+use std::net::TcpStream;
 use std::str::Lines;
 
 use crate::error::HttpParseError;
 use crate::error::ParseErrorKind::Util;
+use crate::Request;
 
 pub(crate) const KEY_VALUE_DELIMITER: &str = ": ";
 pub(crate) const NEW_LINE: char = '\n';
@@ -24,10 +26,23 @@ impl ParseKeyValue for BTreeMap<String, String> {
         string
     }
 }
-
+/// Trait for destructing structs with private fields.
+/// It can also be used to run destroy logic <br>
+///
+/// Example:
+/// ```notrust
+///impl Destruct for ExampleType {
+///    type Item = (u16, String);
+///    fn destruct(self) -> Self::Item {
+///        (self.code, self.message)
+///    }
+///}
+/// ```
 pub trait Destruct {
+    /// used for specifying what kind of for example tuple
+    /// will be returned from this function
     type Item;
-
+    /// destructs the Struct into it's fields
     fn destruct(self) -> Self::Item;
 }
 
@@ -72,8 +87,9 @@ fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
         .map(String::from)?;
     Ok((key, value))
 }
-
+/// trait for adding a method ro specific types to parse them automatically to a [Request]
 pub trait TryRequest {
+    /// trys to parse it to a [Request] otherwise returns a [HttpParseError]
     fn try_to_request(&mut self) -> Result<Request, HttpParseError>;
 }
 

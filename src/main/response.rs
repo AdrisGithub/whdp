@@ -137,6 +137,8 @@ impl Destruct for Response {
     }
 }
 
+/// Builder impl for [Response]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
 pub struct ResponseBuilder {
     version: Option<HttpVersion>,
     status: Option<HttpStatus>,
@@ -145,12 +147,14 @@ pub struct ResponseBuilder {
 }
 
 impl ResponseBuilder {
+    /// validates if all the items are present
     pub const fn validate(&self) -> bool {
         self.body.is_some()
             && self.status.is_some()
             && self.headers.is_some()
             && self.version.is_some()
     }
+    /// creates a new instance of ResponseBuilder with [None] values
     pub const fn new() -> Self {
         Self {
             body: None,
@@ -159,6 +163,7 @@ impl ResponseBuilder {
             version: None,
         }
     }
+    /// trys to make it to a [Response] otherwise returns a [HttpParseError]
     pub fn build(self) -> Result<Response, HttpParseError> {
         if !self.validate() {
             return Err(HttpParseError::from(Req));
@@ -170,18 +175,22 @@ impl ResponseBuilder {
             body: self.body.unwrap(),
         })
     }
+    /// replaces the current value with the header parameter
     pub fn with_headers(mut self, headers: BTreeMap<String, String>) -> Self {
         self.headers = Some(headers);
         self
     }
+    /// replaces the current value with the body parameter
     pub fn with_body(mut self, body: String) -> Self {
         self.body = Some(body);
         self
     }
+    /// replaces the current value with the version parameter
     pub fn with_version(mut self, version: HttpVersion) -> Self {
         self.version = Some(version);
         self
     }
+    /// replaces the current value with the status parameter
     pub fn with_status(mut self, status: HttpStatus) -> Self {
         self.status = Some(status);
         self
@@ -191,6 +200,13 @@ impl ResponseBuilder {
 impl Default for ResponseBuilder {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Destruct for ResponseBuilder {
+    type Item = (Option<HttpVersion>, Option<HttpStatus>, Option<BTreeMap<String, String>>, Option<String>);
+    fn destruct(self) -> Self::Item {
+        (self.version, self.status, self.headers, self.body)
     }
 }
 

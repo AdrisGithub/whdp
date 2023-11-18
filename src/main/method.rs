@@ -2,10 +2,9 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::{HttpParseError, ParseErrorKind::Method};
-use crate::util::OPTION_WAS_EMPTY;
+use crate::util::{INDEX_WAS_WRONG, OPTION_WAS_EMPTY};
 
 const NAME_NOT_EXIST: &str = "Couldn't find a valid HTTP method to that string ";
-const INDEX_WAS_WRONG: &str = "The provided index didn't match";
 const NAMES: [&str; 9] = [
     "POST", "GET", "PUT", "DELETE", "PATCH", "HEAD", "CONNECT", "OPTIONS", "TRACE",
 ];

@@ -10,6 +10,7 @@ pub(crate) const KEY_VALUE_DELIMITER: &str = ": ";
 pub(crate) const NEW_LINE: char = '\n';
 pub(crate) const EMPTY_CHAR: char = ' ';
 pub(crate) const OPTION_WAS_EMPTY: &str = "the Option<?> was empty and couldn't get unwrapped";
+pub(crate) const INDEX_WAS_WRONG: &str = "The provided index didn't match";
 
 pub(crate) trait ParseKeyValue {
     fn parse_key_value(&self) -> String;

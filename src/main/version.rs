@@ -2,8 +2,11 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use crate::error::{HttpParseError, ParseErrorKind::Version};
+use crate::util::{error_option_empty, INDEX_WAS_WRONG};
 
+const NAME_NOT_EXIST: &str = "Couldn't find a valid HTTP Version to that string";
 const NAMES: [&str; 4] = ["HTTP/1.0", "HTTP/1.1", "HTTP/2", "HTTP/3"];
+
 /// Enum for the 4 different HTTP Version
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum HttpVersion {
@@ -25,14 +28,14 @@ impl FromStr for HttpVersion {
             .iter()
             .position(|&idx| idx.eq_ignore_ascii_case(s))
             .map(HttpVersion::try_from)
-            .ok_or(HttpParseError::from(Version))?
+            .ok_or(HttpParseError::from((Version, NAME_NOT_EXIST)))?
     }
 }
 
 impl TryFrom<Option<&str>> for HttpVersion {
     type Error = HttpParseError;
     fn try_from(value: Option<&str>) -> Result<Self, Self::Error> {
-        value.ok_or(HttpParseError::from(Version)).map(Self::from_str)?
+        value.ok_or(error_option_empty(Version)).map(Self::from_str)?
     }
 }
 
@@ -51,7 +54,7 @@ impl TryFrom<usize> for HttpVersion {
             1 => Ok(HttpVersion::OnePointOne),
             2 => Ok(HttpVersion::Two),
             3 => Ok(HttpVersion::Three),
-            _ => Err(HttpParseError::from(Version)),
+            _ => Err(HttpParseError::from((Version,INDEX_WAS_WRONG))),
         }
     }
 }

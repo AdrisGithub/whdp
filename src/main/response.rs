@@ -7,7 +7,7 @@ use crate::status::HttpStatus;
 use crate::status::presets::ok;
 use crate::util::{Destruct, EMPTY_CHAR, parse_body, parse_header, ParseKeyValue};
 use crate::version::HttpVersion;
-
+/// Struct for representing a HTTP Response
 pub struct Response {
     version: HttpVersion,
     status: HttpStatus,
@@ -16,51 +16,66 @@ pub struct Response {
 }
 
 impl Response {
+    /// Creates a new Instance of a [ResponseBuilder]
+    /// to "construct" a Response
     pub const fn builder() -> ResponseBuilder {
         ResponseBuilder::new()
     }
+    /// Get the [HttpVersion] of your Response
     pub const fn get_version(&self) -> &HttpVersion {
         &self.version
     }
+    /// Get the Headers of your Response
     pub const fn get_headers(&self) -> &BTreeMap<String, String> {
         &self.headers
     }
+    /// Get the [HttpStatus] of your Response
     pub const fn get_status(&self) -> &HttpStatus {
         &self.status
     }
+    /// Get the body of your Response
     pub const fn get_body(&self) -> &String {
         &self.body
     }
+    /// Set the body to a specific String
     pub fn set_body(&mut self, body: String) -> &mut Response {
         self.body = body;
         self
     }
+    /// Set the version to as specific [HttpVersion]
     pub fn set_version(&mut self, version: HttpVersion) -> &mut Response {
         self.version = version;
         self
     }
+    /// Set the status to as specific [HttpStatus]
     pub fn set_status(&mut self, status: HttpStatus) -> &mut Response {
         self.status = status;
         self
     }
+    /// Add a single header to your Response
     pub fn add_header(&mut self, kv: (String, String)) -> &mut Response {
         self.headers.insert(kv.0, kv.1);
         self
     }
+    /// Remove a specific Header from the Response (idempotent)
     pub fn remove_header(&mut self, key: &String) -> &mut Response {
         self.headers.remove(key);
         self
     }
+    /// Get the header value to a specific key
     pub fn get_header(&mut self, key: &String) -> Option<&String> {
         self.headers.get(key)
     }
+    /// Get the Headers as a mutable reference to manipulate it yourself
     pub fn get_headers_mut(&mut self) -> &mut BTreeMap<String, String> {
         &mut self.headers
     }
+    /// Append the body by a string literatur
     pub fn append_body_str(&mut self, str: &str) -> &mut Response {
         self.body.push_str(str);
         self
     }
+    /// Append the body by a String
     pub fn append_body(&mut self, str: String) -> &mut Response {
         self.append_body_str(str.as_str());
         self

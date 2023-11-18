@@ -87,7 +87,7 @@ fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
         .map(String::from)?;
     Ok((key, value))
 }
-/// trait for adding a method ro specific types to parse them automatically to a [Request]
+/// Trait for adding a method ro specific types to parse them automatically to a [Request]
 pub trait TryRequest {
     /// trys to parse it to a [Request] otherwise returns a [HttpParseError]
     fn try_to_request(&mut self) -> Result<Request, HttpParseError>;

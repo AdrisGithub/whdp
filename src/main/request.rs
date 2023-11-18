@@ -126,16 +126,6 @@ impl Display for Request {
     }
 }
 
-pub trait TryRequest {
-    fn try_to_request(&mut self) -> Result<Request, HttpParseError>;
-}
-
-impl TryRequest for TcpStream {
-    fn try_to_request(&mut self) -> Result<Request, HttpParseError> {
-        Request::try_from(self)
-    }
-}
-
 impl Destruct for Request {
     type Item = (HttpMethod, String, HttpVersion, BTreeMap<String, String>, String);
     fn destruct(self) -> Self::Item {

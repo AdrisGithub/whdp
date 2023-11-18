@@ -72,3 +72,13 @@ fn parse_key_value(str: &str) -> Result<(String, String), HttpParseError> {
         .map(String::from)?;
     Ok((key, value))
 }
+
+pub trait TryRequest {
+    fn try_to_request(&mut self) -> Result<Request, HttpParseError>;
+}
+
+impl TryRequest for TcpStream {
+    fn try_to_request(&mut self) -> Result<Request, HttpParseError> {
+        Request::try_from(self)
+    }
+}

@@ -3,6 +3,13 @@
 A library to parse the raw string
 into a workable type and vice versa.
 
+[![Latest version](https://img.shields.io/badge/crates.io-1.0.0-red)](https://crates.io/crates/wdhp)
+[![Documentation](https://docs.rs/log/badge.svg)](https://docs.rs/wdhp)
+
+## Documentation:
+
+* [`wdhp`](https://docs.rs/wdhp)
+
 ## Explanation:
 
 Http is a text-based protocol. It follows a rather simple format
@@ -22,24 +29,57 @@ HTTP-Version Status-Code Reason-Phrase CRLF
 headers CRLF
 message-body
 ```
-## Example:
+## Usage:
+
+Import the library into your Cargo.toml
+
+```toml
+[dependencies]
+wdhp = "1.0.0"
+```
+
+Then just use the `TryRequest` trait to parse it to a `Request`
 
 ```rust
 use std::io::Write;
 use std::net::TcpListener;
 
-use whdp::request::TryRequest;
-use whdp::response::Response;
+use whdp::{Response, TryRequest};
 
 fn main() {
-    let server = TcpListener::bind("0.0.0.0:6969").unwrap();
+    let server = TcpListener::bind("0.0.0.0:8080").unwrap();
     let mut resp = Response::default();
     for inco in server.incoming() {
         let mut inco = inco.unwrap();
-        println!("{}", inco.try_to_request().unwrap());
+        println!("{}", inco.try_to_request().unwrap()); // don't unwrap immediatly first look if there is an error
         let _ = inco.write_all(resp.to_string().as_bytes());
     }
 }
 
 ```
 
+And / Or if you want create a Response use the `ResponseBuilder`
+
+```rust
+
+use std::io::Write;
+use std::net::TcpListener;
+
+use whdp::{HttpVersion, ResponseBuilder};
+use whdp::presets::ok;
+
+fn main() {
+    let server = TcpListener::bind("0.0.0.0:8080").unwrap();
+    let resp = ResponseBuilder::new()
+        .with_body("Hello, World".into())
+        .with_status(ok())
+        .with_version(HttpVersion::OnePointOne)
+        .with_empty_headers()
+        .build().unwrap();
+    for inco in server.incoming() {
+        let mut inco = inco.unwrap();
+        let _ = inco.write_all(resp.to_string().as_bytes());
+    }
+}
+
+```

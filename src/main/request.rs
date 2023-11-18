@@ -9,7 +9,7 @@ use crate::method::HttpMethod;
 use crate::util::{Destruct, EMPTY_CHAR, OPTION_WAS_EMPTY, parse_body, parse_header, parse_uri, ParseKeyValue};
 use crate::version::HttpVersion;
 
-// Struct for representing a HTTP Request
+/// Struct for representing a HTTP Request
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Request {
     method: HttpMethod,

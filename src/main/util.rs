@@ -59,7 +59,6 @@ pub(crate) fn parse_body(lines: &mut Lines) -> String {
         first = false;
         string.push_str(str);
     });
-    string.remove((string.len() as isize - 1) as usize);
     string
 }
 

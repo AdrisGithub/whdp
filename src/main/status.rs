@@ -176,10 +176,10 @@ impl Display for HttpStatusGroup {
 
 /// Several preset Status Codes like [OK], [Created], [Not Found]
 ///
-/// [OK]: crate::presets::ok
-/// [Created]: crate::presets::created
-/// [Not Found]: crate::presets::not_found
-pub mod presets {
+/// [OK]: crate::status_presets::ok()
+/// [Created]: crate::status_presets::created()
+/// [Not Found]: crate::status_presets::not_found()
+pub mod status_presets {
     use crate::status::HttpStatus;
 
     /// preset for the Status code [100]

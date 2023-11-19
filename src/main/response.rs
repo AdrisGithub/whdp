@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::status::HttpStatus;
-use crate::status::presets::ok;
+use crate::status::status_presets::ok;
 use crate::util::{Destruct, EMPTY_CHAR, error_option_empty, parse_body, parse_header, ParseKeyValue};
 use crate::version::HttpVersion;
 
@@ -233,6 +233,63 @@ impl Destruct for ResponseBuilder {
     type Item = (Option<HttpVersion>, Option<HttpStatus>, Option<BTreeMap<String, String>>, Option<String>);
     fn destruct(self) -> Self::Item {
         (self.version, self.status, self.headers, self.body)
+    }
+}
+/// Several presets for standard Responses
+pub mod resp_presets {
+    use crate::{HttpStatus, Response, ResponseBuilder, status_presets};
+    use crate::HttpVersion::OnePointOne;
+
+    /// creates an empty [Response] with version 1.1 and the given [HttpStatus]
+    pub fn from_status(status: HttpStatus) -> Response {
+        ResponseBuilder::new()
+            .with_empty_body()
+            .with_empty_headers()
+            .with_version(OnePointOne)
+            .with_status(status)
+            .build().unwrap()
+    }
+    /// creates a [Response] with version 1.1, empty headers, the given [HttpStatus] and a given body
+    pub fn from_status_and_body(status: HttpStatus, body: String) -> Response {
+        let mut resp = from_status(status);
+        resp.set_body(body);
+        resp
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status Continue
+    pub fn r#continue(str: String) -> Response {
+        from_status_and_body(status_presets::r#continue(), str)
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status OK
+    pub fn ok(str: String) -> Response {
+        from_status_and_body(status_presets::ok(), str)
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status Bad Request
+    pub fn bad_request(str: String) -> Response {
+        from_status_and_body(status_presets::bad_request(), str)
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status Not Found
+    pub fn not_found(str: String) -> Response {
+        from_status_and_body(status_presets::not_found(), str)
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status Created
+    pub fn created(str: String) -> Response {
+        from_status_and_body(status_presets::created(), str)
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status Internal Server Error
+    pub fn internal_server_error(str: String) -> Response {
+        from_status_and_body(status_presets::internal_server_error(), str)
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status No Content
+    pub fn no_content(str: String) -> Response {
+        from_status_and_body(status_presets::no_content(), str)
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status Not implemented
+    pub fn not_implemented(str: String) -> Response {
+        from_status_and_body(status_presets::not_implemented(), str)
+    }
+    /// uses the [from_status_and_body] method to create a Response with Status Unsupported Media Type
+    pub fn unsupported_media_type(str: String) -> Response {
+        from_status_and_body(status_presets::unsupported_media_type(), str)
     }
 }
 

@@ -55,6 +55,7 @@ pub(crate) fn parse_body(lines: &mut Lines) -> String {
         string.push_str(str);
         string.push(NEW_LINE);
     });
+    string.remove(string.len() - 1);
     string
 }
 

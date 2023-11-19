@@ -51,9 +51,13 @@ pub trait Destruct {
 
 pub(crate) fn parse_body(lines: &mut Lines) -> String {
     let mut string = String::new();
+    let mut first = true;
     lines.for_each(|str| {
+        if !first {
+            string.push(NEW_LINE);
+        }
+        first = false;
         string.push_str(str);
-        string.push(NEW_LINE);
     });
     string.remove((string.len() as isize - 1) as usize);
     string

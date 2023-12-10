@@ -5,6 +5,9 @@ into a workable type and vice versa.
 
 [![Latest version](https://img.shields.io/badge/crates.io-1.1.5-red)](https://crates.io/crates/whdp)
 [![Documentation](https://docs.rs/log/badge.svg)](https://docs.rs/whdp)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=AdrisGithub_whdp&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=AdrisGithub_whdp)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AdrisGithub_whdp&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=AdrisGithub_whdp)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=AdrisGithub_whdp&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=AdrisGithub_whdp)
 
 ## Documentation:
 

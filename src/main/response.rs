@@ -1,10 +1,13 @@
 use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
+use std::io::{BufRead, BufReader};
+use std::net::TcpStream;
 use std::str::FromStr;
 
 use wjp::{Deserialize, map, ParseError, Serialize, SerializeHelper, Values};
 
 use crate::error::{HttpParseError, ParseErrorKind::Req};
+use crate::Request;
 use crate::status::HttpStatus;
 use crate::status::status_presets::ok;
 use crate::util::{Destruct, EMPTY_CHAR, error_option_empty, parse_body, parse_header, ParseKeyValue};
@@ -142,6 +145,28 @@ impl FromStr for Response {
         })
     }
 }
+impl TryFrom<&mut TcpStream> for Response{
+    type Error = HttpParseError;
+    fn try_from(value: &mut TcpStream) -> Result<Self, Self::Error> {
+        let mut reader = BufReader::new(value);
+        let received: Vec<u8> = reader
+            .fill_buf()
+            .map_err(|err| HttpParseError::from((Req, err.to_string())))?
+            .to_vec();
+        reader.consume(received.len());
+        Self::try_from(received)
+    }
+}
+impl TryFrom<Vec<u8>> for Response {
+    type Error = HttpParseError;
+    fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
+        let string = String::from_utf8(value)
+            .map_err(|err| HttpParseError::from((Req, err.to_string())))?;
+        Self::try_from(string)
+    }
+}
+
+
 
 impl Default for Response {
     fn default() -> Self {

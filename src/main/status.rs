@@ -1,6 +1,8 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
+use wjp::{ParseError, Serialize, Values};
+
 use crate::error::HttpParseError;
 use crate::error::ParseErrorKind::Status;
 use crate::util::{Destruct, EMPTY_CHAR, OPTION_WAS_EMPTY};
@@ -110,6 +112,24 @@ impl FromStr for HttpStatus {
     }
 }
 
+impl TryFrom<usize> for HttpStatus {
+    type Error = HttpParseError;
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        Ok(match value {
+            100 => status_presets::r#continue(),
+            200 => status_presets::ok(),
+            201 => status_presets::created(),
+            204 => status_presets::no_content(),
+            400 => status_presets::bad_request(),
+            404 => status_presets::not_found(),
+            415 => status_presets::unsupported_media_type(),
+            500 => status_presets::internal_server_error(),
+            501 => status_presets::not_implemented(),
+            _ => HttpStatus::from((value as u16, "Custom HttpStatus"))
+        })
+    }
+}
+
 impl Display for HttpStatus {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} {}", self.code, self.message)
@@ -121,6 +141,21 @@ impl Debug for HttpStatus {
         Display::fmt(self, f)
     }
 }
+
+impl TryFrom<Values> for HttpStatus {
+    type Error = ParseError;
+    fn try_from(value: Values) -> Result<Self, Self::Error> {
+        Self::try_from(usize::try_from(value)?)
+            .map_err(|_err| ParseError::new())
+    }
+}
+
+impl Serialize for HttpStatus {
+    fn serialize(&self) -> Values {
+        self.code.serialize()
+    }
+}
+
 
 /// Enum for HTTP Status Codes Groups
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Hash)]

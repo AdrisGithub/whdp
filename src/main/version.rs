@@ -1,5 +1,6 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
+use wjp::{ParseError, Serialize, Values};
 
 use crate::error::{HttpParseError, ParseErrorKind::Version};
 use crate::util::{error_option_empty, INDEX_WAS_WRONG};
@@ -56,6 +57,19 @@ impl TryFrom<usize> for HttpVersion {
             3 => Ok(HttpVersion::Three),
             _ => Err(HttpParseError::from((Version,INDEX_WAS_WRONG))),
         }
+    }
+}
+
+impl TryFrom<Values> for HttpVersion{
+    type Error = ParseError;
+    fn try_from(value: Values) -> Result<Self, Self::Error> {
+        HttpVersion::from_str(value.get_string().ok_or(ParseError::new())?.as_str())
+            .map_err(|_err|ParseError::new())
+    }
+}
+impl Serialize for HttpVersion{
+    fn serialize(&self) -> Values {
+        Values::String(self.to_string())
     }
 }
 

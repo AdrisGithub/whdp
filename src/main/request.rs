@@ -3,7 +3,8 @@ use std::fmt::{Debug, Display, Formatter};
 use std::io::{BufRead, BufReader};
 use std::net::TcpStream;
 use std::str::FromStr;
-use wjp::{Deserialize, ParseError};
+
+use wjp::{Deserialize, map, ParseError, Serialize, SerializeHelper, Values};
 
 use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::method::HttpMethod;
@@ -109,7 +110,7 @@ impl Request {
         &self.body
     }
     /// Get the body of this Request parsed to the Type T
-    pub fn get_parsed_body<T: Deserialize>(&self) -> Result<T,ParseError> {
+    pub fn get_parsed_body<T: Deserialize>(&self) -> Result<T, ParseError> {
         T::deserialize_str(self.get_body().as_str())
     }
     /// Get the version of this Request
@@ -142,5 +143,30 @@ impl Destruct for Request {
     type Item = (HttpMethod, String, HttpVersion, BTreeMap<String, String>, String);
     fn destruct(self) -> Self::Item {
         (self.method, self.uri, self.version, self.headers, self.body)
+    }
+}
+
+impl TryFrom<Values> for Request {
+    type Error = ParseError;
+    fn try_from(value: Values) -> Result<Self, Self::Error> {
+        let mut struc = value.get_struct().ok_or(ParseError::new())?;
+        let body = struc.map_val("body",String::try_from)?;
+        let headers = struc.map_val("headers",  BTreeMap::try_from)?;
+        let method = struc.map_val("method", HttpMethod::try_from)?;
+        let version = struc.map_val("version",HttpVersion::try_from)?;
+        let uri = struc.map_val("uri",String::try_from)?;
+        Ok(Self { body, headers, method, version, uri })
+    }
+}
+
+impl Serialize for Request {
+    fn serialize(&self) -> Values {
+        Values::Struct(map!(
+            ("version",self.version.serialize()),
+            ("headers",self.headers.serialize()),
+            ("body",self.body.serialize()),
+            ("uri",self.uri.serialize()),
+            ("method",self.method.serialize())
+        ))
     }
 }

@@ -1,5 +1,6 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
+use wjp::{ParseError, Serialize, Values};
 
 use crate::error::{HttpParseError, ParseErrorKind::Method};
 use crate::util::{INDEX_WAS_WRONG, OPTION_WAS_EMPTY};
@@ -66,6 +67,18 @@ impl TryFrom<Option<&str>> for HttpMethod {
     fn try_from(value: Option<&str>) -> Result<Self, Self::Error> {
         value.ok_or(HttpParseError::from((Method, OPTION_WAS_EMPTY)))
             .map(HttpMethod::from_str)?
+    }
+}
+impl TryFrom<Values> for HttpMethod{
+    type Error = ParseError;
+    fn try_from(value: Values) -> Result<Self, Self::Error> {
+        Self::from_str(value.get_string().ok_or(ParseError::new())?.as_str())
+            .map_err(|_err|ParseError::new())
+    }
+}
+impl Serialize for HttpMethod{
+    fn serialize(&self) -> Values {
+        Values::String(self.to_string())
     }
 }
 

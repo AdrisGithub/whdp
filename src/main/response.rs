@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
-use wjp::{Deserialize, ParseError, Serialize};
+
+use wjp::{Deserialize, map, ParseError, Serialize, SerializeHelper, Values};
 
 use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::status::HttpStatus;
@@ -42,7 +43,7 @@ impl Response {
         &self.body
     }
     /// Get the body parsed to the Parameter T
-    pub fn get_parsed_body<T: Deserialize>(&self) -> Result<T,ParseError> {
+    pub fn get_parsed_body<T: Deserialize>(&self) -> Result<T, ParseError> {
         T::deserialize_str(self.body.as_str())
     }
     /// Set the body to a specific String
@@ -211,7 +212,7 @@ impl ResponseBuilder {
     /// replaces the current body with a [`serializable`] Body
     ///
     /// [`serializable`]: Serialize
-    pub fn with_body_ser<T: Serialize>(self,body:T) -> Self{
+    pub fn with_body_ser<T: Serialize>(self, body: T) -> Self {
         self.with_body(body.json())
     }
 
@@ -241,12 +242,36 @@ impl Default for ResponseBuilder {
     }
 }
 
+impl TryFrom<Values> for Response {
+    type Error = ParseError;
+    fn try_from(value: Values) -> Result<Self, Self::Error> {
+        let mut struc = value.get_struct().ok_or(ParseError::new())?;
+        let body = struc.map_val("body", String::try_from)?;
+        let headers = struc.map_val("headers", BTreeMap::try_from)?;
+        let status = struc.map_val("status", HttpStatus::try_from)?;
+        let version = struc.map_val("version", HttpVersion::try_from)?;
+        Ok(Self { body, headers, status, version })
+    }
+}
+
+impl Serialize for Response {
+    fn serialize(&self) -> Values {
+        Values::Struct(map!(
+            ("body",self.body.serialize()),
+            ("headers",self.headers.serialize()),
+            ("status",self.status.serialize()),
+            ("version",self.version.serialize())
+        ))
+    }
+}
+
 impl Destruct for ResponseBuilder {
     type Item = (Option<HttpVersion>, Option<HttpStatus>, Option<BTreeMap<String, String>>, Option<String>);
     fn destruct(self) -> Self::Item {
         (self.version, self.status, self.headers, self.body)
     }
 }
+
 /// Several presets for standard Responses
 pub mod resp_presets {
     use crate::{HttpStatus, Response, ResponseBuilder, status_presets};
@@ -261,44 +286,54 @@ pub mod resp_presets {
             .with_status(status)
             .build().unwrap()
     }
+
     /// creates a [Response] with version 1.1, empty headers, the given [HttpStatus] and a given body
     pub fn from_status_and_body(status: HttpStatus, body: String) -> Response {
         let mut resp = from_status(status);
         resp.set_body(body);
         resp
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status Continue
     pub fn r#continue(str: String) -> Response {
         from_status_and_body(status_presets::r#continue(), str)
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status OK
     pub fn ok(str: String) -> Response {
         from_status_and_body(status_presets::ok(), str)
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status Bad Request
     pub fn bad_request(str: String) -> Response {
         from_status_and_body(status_presets::bad_request(), str)
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status Not Found
     pub fn not_found(str: String) -> Response {
         from_status_and_body(status_presets::not_found(), str)
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status Created
     pub fn created(str: String) -> Response {
         from_status_and_body(status_presets::created(), str)
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status Internal Server Error
     pub fn internal_server_error(str: String) -> Response {
         from_status_and_body(status_presets::internal_server_error(), str)
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status No Content
     pub fn no_content(str: String) -> Response {
         from_status_and_body(status_presets::no_content(), str)
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status Not implemented
     pub fn not_implemented(str: String) -> Response {
         from_status_and_body(status_presets::not_implemented(), str)
     }
+
     /// uses the [from_status_and_body] method to create a Response with Status Unsupported Media Type
     pub fn unsupported_media_type(str: String) -> Response {
         from_status_and_body(status_presets::unsupported_media_type(), str)

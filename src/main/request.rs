@@ -150,11 +150,11 @@ impl TryFrom<Values> for Request {
     type Error = ParseError;
     fn try_from(value: Values) -> Result<Self, Self::Error> {
         let mut struc = value.get_struct().ok_or(ParseError::new())?;
-        let body = struc.map_val("body",String::try_from)?;
-        let headers = struc.map_val("headers",  BTreeMap::try_from)?;
+        let body = struc.map_val("body", String::try_from)?;
+        let headers = struc.map_val("headers", BTreeMap::try_from)?;
         let method = struc.map_val("method", HttpMethod::try_from)?;
-        let version = struc.map_val("version",HttpVersion::try_from)?;
-        let uri = struc.map_val("uri",String::try_from)?;
+        let version = struc.map_val("version", HttpVersion::try_from)?;
+        let uri = struc.map_val("uri", String::try_from)?;
         Ok(Self { body, headers, method, version, uri })
     }
 }
@@ -168,5 +168,23 @@ impl Serialize for Request {
             ("uri",self.uri.serialize()),
             ("method",self.method.serialize())
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs::read_to_string;
+
+    use wjp::Serialize;
+
+    use crate::Request;
+
+    #[test]
+    pub fn test() {
+        let string = read_to_string("src/resources/request.txt").unwrap();
+        let req = Request::try_from(string).unwrap();
+        println!("{:?}", req);
+        println!();
+        println!("{}", req.json());
     }
 }

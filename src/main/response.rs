@@ -343,6 +343,7 @@ pub mod resp_presets {
 #[cfg(test)]
 mod tests {
     use std::fs::read_to_string;
+    use wjp::Serialize;
 
     use crate::response::Response;
 
@@ -351,5 +352,7 @@ mod tests {
         let string = read_to_string("src/resources/response.txt").unwrap();
         let resp = Response::try_from(string).unwrap();
         println!("{:?}", resp);
+        println!();
+        println!("{}", resp.json());
     }
 }

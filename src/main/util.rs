@@ -33,7 +33,14 @@ impl ParseKeyValue for BTreeMap<String, String> {
 /// It can also be used to run destroy logic <br>
 ///
 /// Example:
-/// ```notrust
+/// ```
+/// use whdp::Destruct;
+///
+/// struct ExampleType{
+///     code: u16,
+///     message: String,
+/// }
+///
 ///impl Destruct for ExampleType {
 ///    type Item = (u16, String);
 ///    fn destruct(self) -> Self::Item {

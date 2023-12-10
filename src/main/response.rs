@@ -7,7 +7,6 @@ use std::str::FromStr;
 use wjp::{Deserialize, map, ParseError, Serialize, SerializeHelper, Values};
 
 use crate::error::{HttpParseError, ParseErrorKind::Req};
-use crate::Request;
 use crate::status::HttpStatus;
 use crate::status::status_presets::ok;
 use crate::util::{Destruct, EMPTY_CHAR, error_option_empty, parse_body, parse_header, ParseKeyValue};

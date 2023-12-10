@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
+use wjp::{Deserialize, ParseError, Serialize};
 
 use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::status::HttpStatus;
@@ -39,6 +40,10 @@ impl Response {
     /// Get the body of your Response
     pub const fn get_body(&self) -> &String {
         &self.body
+    }
+    /// Get the body parsed to the Parameter T
+    pub fn get_parsed_body<T: Deserialize>(&self) -> Result<T,ParseError> {
+        T::deserialize_str(self.body.as_str())
     }
     /// Set the body to a specific String
     pub fn set_body(&mut self, body: String) -> &mut Response {
@@ -203,6 +208,13 @@ impl ResponseBuilder {
         self.body = Some(body);
         self
     }
+    /// replaces the current body with a [`serializable`] Body
+    ///
+    /// [`serializable`]: Serialize
+    pub fn with_body_ser<T: Serialize>(self,body:T) -> Self{
+        self.with_body(body.json())
+    }
+
     /// replaces the current value with the version parameter
     pub fn with_version(mut self, version: HttpVersion) -> Self {
         self.version = Some(version);

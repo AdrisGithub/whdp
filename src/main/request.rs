@@ -3,6 +3,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::io::{BufRead, BufReader};
 use std::net::TcpStream;
 use std::str::FromStr;
+use wjp::{Deserialize, ParseError};
 
 use crate::error::{HttpParseError, ParseErrorKind::Req};
 use crate::method::HttpMethod;
@@ -106,6 +107,10 @@ impl Request {
     /// Get the body of this Request
     pub fn get_body(&self) -> &String {
         &self.body
+    }
+    /// Get the body of this Request parsed to the Type T
+    pub fn get_parsed_body<T: Deserialize>(&self) -> Result<T,ParseError> {
+        T::deserialize_str(self.get_body().as_str())
     }
     /// Get the version of this Request
     pub fn get_version(&self) -> &HttpVersion {

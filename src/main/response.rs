@@ -73,6 +73,13 @@ impl Response {
         self.headers.remove(key);
         self
     }
+    /// If the specified Header doesn't exist inserts it else does nothing 
+    pub fn try_insert(&mut self, kv: (String, String)) -> &mut Response {
+        if self.headers.contains_key(&kv.0) {
+            return self
+        }
+        self.add_header(kv)
+    }
     /// Get the header value to a specific key
     pub fn get_header(&mut self, key: &String) -> Option<&String> {
         self.headers.get(key)
@@ -144,7 +151,8 @@ impl FromStr for Response {
         })
     }
 }
-impl TryFrom<&mut TcpStream> for Response{
+
+impl TryFrom<&mut TcpStream> for Response {
     type Error = HttpParseError;
     fn try_from(value: &mut TcpStream) -> Result<Self, Self::Error> {
         let mut reader = BufReader::new(value);
@@ -156,6 +164,7 @@ impl TryFrom<&mut TcpStream> for Response{
         Self::try_from(received)
     }
 }
+
 impl TryFrom<Vec<u8>> for Response {
     type Error = HttpParseError;
     fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
@@ -164,7 +173,6 @@ impl TryFrom<Vec<u8>> for Response {
         Self::try_from(string)
     }
 }
-
 
 
 impl Default for Response {
@@ -367,6 +375,7 @@ pub mod resp_presets {
 #[cfg(test)]
 mod tests {
     use std::fs::read_to_string;
+
     use wjp::Serialize;
 
     use crate::response::Response;

@@ -3,7 +3,7 @@
 A library to parse the raw string
 into a workable type and vice versa.
 
-[![Latest version](https://img.shields.io/badge/crates.io-1.1.9-red)](https://crates.io/crates/whdp)
+[![Latest version](https://img.shields.io/badge/crates.io-1.1.10-red)](https://crates.io/crates/whdp)
 [![Documentation](https://docs.rs/log/badge.svg)](https://docs.rs/whdp)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=AdrisGithub_whdp&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=AdrisGithub_whdp)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AdrisGithub_whdp&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=AdrisGithub_whdp)
@@ -38,7 +38,7 @@ Import the library into your Cargo.toml
 
 ```toml
 [dependencies]
-whdp = "1.1.9"
+whdp = "1.1.10"
 ```
 
 Then just use the `TryRequest` trait to parse it to a `Request`
@@ -61,7 +61,7 @@ fn main() {
 
 ```
 
-And / Or if you want create a Response use the `ResponseBuilder` or the `resp_presets` module
+And / Or if you want to create a Response use the `ResponseBuilder` or the `resp_presets` module
 
 ```rust
 

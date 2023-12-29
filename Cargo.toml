@@ -1,6 +1,6 @@
 [package]
 name = "whdp"
-version = "1.1.10"
+version = "1.1.11"
 edition = "2021"
 authors = ["Adriiii"]
 description = "Wizards hypermedia document parser"
@@ -14,4 +14,4 @@ exclude = ["src/resources", ".github/", "sonar-project.properties"]
 path = "src/main/lib.rs"
 
 [dependencies]
-wjp = "1.0.2"
+wjp = "1.1.1"

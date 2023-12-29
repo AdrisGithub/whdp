@@ -162,11 +162,11 @@ impl TryFrom<Values> for Request {
 impl Serialize for Request {
     fn serialize(&self) -> Values {
         Values::Struct(map!(
-            ("version",self.version.serialize()),
-            ("headers",self.headers.serialize()),
-            ("body",self.body.serialize()),
-            ("uri",self.uri.serialize()),
-            ("method",self.method.serialize())
+            ("version",&self.version),
+            ("headers",&self.headers),
+            ("body",&self.body),
+            ("uri",&self.uri),
+            ("method",&self.method)
         ))
     }
 }

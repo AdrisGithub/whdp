@@ -289,10 +289,10 @@ impl TryFrom<Values> for Response {
 impl Serialize for Response {
     fn serialize(&self) -> Values {
         Values::Struct(map!(
-            ("body",self.body.serialize()),
-            ("headers",self.headers.serialize()),
-            ("status",self.status.serialize()),
-            ("version",self.version.serialize())
+            ("body",&self.body),
+            ("headers",&self.headers),
+            ("status",&self.status),
+            ("version",&self.version)
         ))
     }
 }

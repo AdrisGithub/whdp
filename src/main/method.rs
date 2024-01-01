@@ -11,7 +11,7 @@ const NAMES: [&str; 9] = [
 ];
 
 /// Enum for all the HTTP Methods
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash,Default)]
 pub enum HttpMethod {
     /// Is used for creating/posting data to a Server. <br>
     /// The difference to [PUT] is that it does not have to be idempotent
@@ -20,6 +20,7 @@ pub enum HttpMethod {
     Post,
     /// Is used for requesting data from a Server. <br>
     /// It should be Idempotent
+    #[default]
     Get,
     /// Is used for replacing data on a Server. <br>
     /// The difference to [POST] is that it should be idempotent

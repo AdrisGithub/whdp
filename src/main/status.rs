@@ -8,7 +8,7 @@ use crate::error::ParseErrorKind::Status;
 use crate::util::{Destruct, EMPTY_CHAR, OPTION_WAS_EMPTY};
 
 /// Struct for HTTP Status Codes
-#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash,Default)]
 pub struct HttpStatus {
     code: u16,
     message: String,

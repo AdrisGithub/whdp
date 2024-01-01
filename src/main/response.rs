@@ -49,8 +49,8 @@ impl Response {
         T::deserialize_str(self.body.as_str())
     }
     /// Set the body to a specific String
-    pub fn set_body(&mut self, body: String) -> &mut Response {
-        self.body = body;
+    pub fn set_body(&mut self, body: &str) -> &mut Response {
+        self.body = String::from(body);
         self
     }
     /// Set the version to as specific [HttpVersion]
@@ -69,7 +69,7 @@ impl Response {
         self
     }
     /// Remove a specific Header from the Response (idempotent)
-    pub fn remove_header(&mut self, key: &String) -> &mut Response {
+    pub fn remove_header(&mut self, key: &str) -> &mut Response {
         self.headers.remove(key);
         self
     }
@@ -81,21 +81,16 @@ impl Response {
         self.add_header(kv)
     }
     /// Get the header value to a specific key
-    pub fn get_header(&mut self, key: &String) -> Option<&String> {
+    pub fn get_header(&self, key: &str) -> Option<&String> {
         self.headers.get(key)
     }
     /// Get the Headers as a mutable reference to manipulate it yourself
     pub fn get_headers_mut(&mut self) -> &mut BTreeMap<String, String> {
         &mut self.headers
     }
-    /// Append the body by a string literatur
-    pub fn append_body_str(&mut self, str: &str) -> &mut Response {
-        self.body.push_str(str);
-        self
-    }
     /// Append the body by a String
-    pub fn append_body(&mut self, str: String) -> &mut Response {
-        self.append_body_str(str.as_str());
+    pub fn append_body(&mut self, str: &str) -> &mut Response {
+        self.body.push_str(str);
         self
     }
     fn parse_meta_line(str: Option<&str>) -> Result<(HttpVersion, HttpStatus), HttpParseError> {
@@ -237,15 +232,15 @@ impl ResponseBuilder {
         self
     }
     /// replaces the current value with the body parameter
-    pub fn with_body(mut self, body: String) -> Self {
-        self.body = Some(body);
+    pub fn with_body(mut self, body: &str) -> Self {
+        self.body = Some(String::from(body));
         self
     }
     /// replaces the current body with a [`serializable`] Body
     ///
     /// [`serializable`]: Serialize
     pub fn with_body_ser<T: Serialize>(self, body: T) -> Self {
-        self.with_body(body.json())
+        self.with_body(&body.json())
     }
 
     /// replaces the current value with the version parameter
@@ -264,7 +259,7 @@ impl ResponseBuilder {
     }
     // replaces the current value with an empty body
     pub fn with_empty_body(self) -> Self {
-        self.with_body(String::new())
+        self.with_body("")
     }
 }
 
@@ -320,54 +315,54 @@ pub mod resp_presets {
     }
 
     /// creates a [Response] with version 1.1, empty headers, the given [HttpStatus] and a given body
-    pub fn from_status_and_body(status: HttpStatus, body: String) -> Response {
+    pub fn from_status_and_body(status: HttpStatus, body: &str) -> Response {
         let mut resp = from_status(status);
         resp.set_body(body);
         resp
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status Continue
-    pub fn r#continue(str: String) -> Response {
+    pub fn r#continue(str: &str) -> Response {
         from_status_and_body(status_presets::r#continue(), str)
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status OK
-    pub fn ok(str: String) -> Response {
+    pub fn ok(str: &str) -> Response {
         from_status_and_body(status_presets::ok(), str)
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status Bad Request
-    pub fn bad_request(str: String) -> Response {
+    pub fn bad_request(str: &str) -> Response {
         from_status_and_body(status_presets::bad_request(), str)
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status Not Found
-    pub fn not_found(str: String) -> Response {
+    pub fn not_found(str: &str) -> Response {
         from_status_and_body(status_presets::not_found(), str)
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status Created
-    pub fn created(str: String) -> Response {
+    pub fn created(str: &str) -> Response {
         from_status_and_body(status_presets::created(), str)
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status Internal Server Error
-    pub fn internal_server_error(str: String) -> Response {
+    pub fn internal_server_error(str: &str) -> Response {
         from_status_and_body(status_presets::internal_server_error(), str)
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status No Content
-    pub fn no_content(str: String) -> Response {
+    pub fn no_content(str: &str) -> Response {
         from_status_and_body(status_presets::no_content(), str)
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status Not implemented
-    pub fn not_implemented(str: String) -> Response {
+    pub fn not_implemented(str: &str) -> Response {
         from_status_and_body(status_presets::not_implemented(), str)
     }
 
     /// uses the [from_status_and_body] method to create a Response with Status Unsupported Media Type
-    pub fn unsupported_media_type(str: String) -> Response {
+    pub fn unsupported_media_type(str: &str) -> Response {
         from_status_and_body(status_presets::unsupported_media_type(), str)
     }
 }

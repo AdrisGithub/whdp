@@ -9,11 +9,12 @@ const NAME_NOT_EXIST: &str = "Couldn't find a valid HTTP Version to that string"
 const NAMES: [&str; 4] = ["HTTP/1.0", "HTTP/1.1", "HTTP/2", "HTTP/3"];
 
 /// Enum for the 4 different HTTP Version
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash,Default)]
 pub enum HttpVersion {
     /// HTTP/1.0
     One,
     /// HTTP/1.1
+    #[default]
     OnePointOne,
     /// HTTP/2
     Two,

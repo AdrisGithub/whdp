@@ -12,7 +12,7 @@ use crate::util::{Destruct, EMPTY_CHAR, OPTION_WAS_EMPTY, parse_body, parse_head
 use crate::version::HttpVersion;
 
 /// Struct for representing a HTTP Request
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd, Default)]
 pub struct Request {
     method: HttpMethod,
     uri: String,
@@ -94,19 +94,19 @@ impl Request {
         ))
     }
     /// Get the [HttpMethod] of this Request
-    pub fn get_method(&self) -> &HttpMethod {
+    pub const fn get_method(&self) -> &HttpMethod {
         &self.method
     }
     /// Get the uri of this Request
-    pub fn get_uri(&self) -> &String {
+    pub const fn get_uri(&self) -> &String {
         &self.uri
     }
     /// Get the headers of this Request
-    pub fn get_headers(&self) -> &BTreeMap<String, String> {
+    pub const fn get_headers(&self) -> &BTreeMap<String, String> {
         &self.headers
     }
     /// Get the body of this Request
-    pub fn get_body(&self) -> &String {
+    pub const fn get_body(&self) -> &String {
         &self.body
     }
     /// Get the body of this Request parsed to the Type T
@@ -114,7 +114,7 @@ impl Request {
         T::deserialize_str(self.get_body().as_str())
     }
     /// Get the version of this Request
-    pub fn get_version(&self) -> &HttpVersion {
+    pub const fn get_version(&self) -> &HttpVersion {
         &self.version
     }
 }

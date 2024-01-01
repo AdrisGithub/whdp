@@ -3,7 +3,6 @@ use std::fmt::{Debug, Display, Formatter};
 use crate::util::Destruct;
 
 const MESSAGE: &str = "Failure:";
-const UNKNOWN_MSG: &str = "Something unexpected went wrong";
 
 /// ### Error struct for HTTP Parsing
 ///
@@ -12,7 +11,7 @@ const UNKNOWN_MSG: &str = "Something unexpected went wrong";
 ///
 /// [kind]: crate::HttpParseError::get_kind
 /// [message]: crate::HttpParseError::get_msg
-#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Hash)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Hash,Default)]
 pub struct HttpParseError {
     kind: ParseErrorKind,
     msg: Option<String>,
@@ -32,13 +31,13 @@ impl HttpParseError {
         &self.kind
     }
     /// change the Error to have this message
-    pub fn with_msg(&mut self, str: String) -> &mut Self {
-        self.msg = Some(str);
+    pub fn with_msg(&mut self, str: &str) -> &mut Self {
+        self.msg = Some(String::from(str));
         self
     }
     /// get the Message of this Error
-    pub fn get_msg(&self) -> String {
-        self.msg.clone().unwrap_or(UNKNOWN_MSG.into())
+    pub fn get_msg(&self) -> Option<&str> {
+        self.msg.as_ref().map(|s|s.as_str())
     }
 }
 
@@ -53,27 +52,21 @@ impl From<ParseErrorKind> for HttpParseError {
 
 impl From<(ParseErrorKind, &str)> for HttpParseError {
     fn from(value: (ParseErrorKind, &str)) -> Self {
-        Self::from((value.0, String::from(value.1)))
-    }
-}
-
-impl From<(ParseErrorKind, String)> for HttpParseError {
-    fn from(value: (ParseErrorKind, String)) -> Self {
         let mut err = Self::from(value.0);
         err.with_msg(value.1);
         err
     }
 }
 
-impl Default for HttpParseError {
-    fn default() -> Self {
-        Self::new()
+impl From<(ParseErrorKind, String)> for HttpParseError {
+    fn from(value: (ParseErrorKind, String)) -> Self {
+        Self::from((value.0,value.1.as_str()))
     }
 }
 
 impl Debug for HttpParseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {}{}", self.kind, MESSAGE, self.get_msg())
+        write!(f, "{} {}{}", self.kind, MESSAGE, self.get_msg().unwrap_or(""))
     }
 }
 
@@ -86,16 +79,17 @@ impl Display for HttpParseError {
 impl Destruct for HttpParseError {
     type Item = (ParseErrorKind, String);
     fn destruct(self) -> Self::Item {
-        (self.kind, self.get_msg())
+        (self.kind, String::from(self.get_msg().unwrap_or("")))
     }
 }
 
 /// #### Enum for the different places where the parsing could went wrong
 /// This is more for error handling in match cases. It's used in [HttpParseError] <br>
 /// For genuine Information where it went wrong read the message
-#[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Hash, Debug)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Hash, Debug,Default)]
 pub enum ParseErrorKind {
     /// Error type for [Default] Error
+    #[default]
     Unkown,
     /// Error type for everything that has to do with parsing the [HttpMethod]
     ///
